@@ -17,5 +17,11 @@ lapply(list.files(here::here("R"),
 
 list(
   # create diet tibble
-  tar_target(data_diets, create_diet_tib())
+  tar_target(data_diets, create_diet_tib()),
+  # define prey composition dataset from Bay of Biscay
+  tar_target(data_compo_BoB_file,
+             "data/Nuts_in_preys.xlsx",
+             format = "file"),
+  # load it
+  tar_target(data_compo_BoB, load_xl(data_compo_BoB_file))
 )

@@ -1,0 +1,6 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
+data_compo_BoB|stem|fbb201b883f4a52c|ba106c26cf6b896d|ef46db3751d8e999|-217139327|data/Nuts_in_preys.xlsx|t18788.5025500973s|595e45deffaf358d|49136|file|vector|||0||
+data_diets|stem|da8f2eca320152c0|d822a743d9cc914d|f78686cc0462cbbf|-432895262||t19037.6718865592s|1a8345dd0a5aa12a|381|rds|vector|||0.19||
+load_compo_tibbles|function|7f751aef04cd03cd||||||||||||||
+create_diet_tib|function|544b41cad74ceee0||||||||||||||
+load_xl|function|afdc855e2ae9f85c||||||||||||||
