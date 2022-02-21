@@ -39,5 +39,11 @@ list(
   tar_target(diet_nut_input, compute_nut_in_diet(diet_input,
                                                  prey_compo_boot)),
   #### add abundance data
-  tar_target(diet_nut_abund_input, add_abund(diet_nut_input))
+  tar_target(diet_nut_abund_input, add_abund(diet_nut_input)),
+  #### add nrjtic data
+  tar_target(full_input, add_nrjtic(diet_nut_abund_input)),
+  # RUN MODEL
+  tar_target(model_output, run_model(full_input,
+                                     nsim = 1e3) ########## NSIM HERE
+             )
 )

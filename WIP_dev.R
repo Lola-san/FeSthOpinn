@@ -77,4 +77,63 @@ compo_preys |>
   # bootstrap : sample nsim species from each taxa
   dplyr::slice_sample(n = 1e2, replace = TRUE)
 
+sum_vec <- function(list_of_vec) {
+  summed_vec <- rep(0, length(list_of_vec[[1]]))
 
+  for (j in seq_along(list_of_vec)) {
+    summed_vec <- summed_vec + list_of_vec[[j]]
+  }
+  return(summed_vec)
+}
+
+sum_tib <- tibble::tibble(min = sum_vec(list(purrr::pluck(model_output, "excrete_Fe_min", 1),
+                                        purrr::pluck(model_output, "excrete_Fe_min", 2),
+                                        purrr::pluck(model_output, "excrete_Fe_min", 3),
+                                        purrr::pluck(model_output, "excrete_Fe_min", 4))),
+                          max = sum_vec(list(purrr::pluck(model_output, "excrete_Fe_max", 1),
+                                        purrr::pluck(model_output, "excrete_Fe_max", 2),
+                                        purrr::pluck(model_output, "excrete_Fe_max", 3),
+                                        purrr::pluck(model_output, "excrete_Fe_max", 4))),
+                          mean = sum_vec(list(purrr::pluck(model_output, "excrete_Fe_mean", 1),
+                                        purrr::pluck(model_output, "excrete_Fe_mean", 2),
+                                        purrr::pluck(model_output, "excrete_Fe_mean", 3),
+                                        purrr::pluck(model_output, "excrete_Fe_mean", 4))))
+
+hist((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_min", 1),
+                  purrr::pluck(model_output, "excrete_Fe_min", 2),
+                  purrr::pluck(model_output, "excrete_Fe_min", 3),
+                  purrr::pluck(model_output, "excrete_Fe_min", 4))))$value)
+
+summary((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_min", 1),
+                   purrr::pluck(model_output, "excrete_Fe_min", 2),
+                   purrr::pluck(model_output, "excrete_Fe_min", 3),
+                   purrr::pluck(model_output, "excrete_Fe_min", 4))))$value)
+
+
+hist((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_max", 1),
+                   purrr::pluck(model_output, "excrete_Fe_max", 2),
+                   purrr::pluck(model_output, "excrete_Fe_max", 3),
+                   purrr::pluck(model_output, "excrete_Fe_max", 4))))$value)
+
+summary((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_max", 1),
+                   purrr::pluck(model_output, "excrete_Fe_max", 2),
+                   purrr::pluck(model_output, "excrete_Fe_max", 3),
+                   purrr::pluck(model_output, "excrete_Fe_max", 4))))$value)
+
+hist((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_mean", 1),
+                   purrr::pluck(model_output, "excrete_Fe_mean", 2),
+                   purrr::pluck(model_output, "excrete_Fe_mean", 3),
+                   purrr::pluck(model_output, "excrete_Fe_mean", 4))))$value)
+
+summary((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_mean", 1),
+                   purrr::pluck(model_output, "excrete_Fe_mean", 2),
+                   purrr::pluck(model_output, "excrete_Fe_mean", 3),
+                   purrr::pluck(model_output, "excrete_Fe_mean", 4))))$value)
+
+
+sum_tib |>
+  tidyr::pivot_longer(cols = "min":"mean",
+                      names_to = "estimate",
+                      values_to = "Fe_exc") |>
+  ggplot2::ggplot() +
+  ggplot2::geom_histogram(ggplot2::aes(x = Fe_exc, color = estimate))

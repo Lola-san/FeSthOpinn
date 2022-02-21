@@ -9,10 +9,16 @@ prey_compo_boot|stem|ce66b3fbc5a0f911|1a1a258a0cbdb85e|39ac9a64cc911ea4|-1870263
 diet_nut_input|stem|3faad7b7a6c46c16|f05094c4dab9620a|1f0da9865d126109|-1274213382||t19044.419092678s|a96b90ceaf6e236f|42848|rds|vector|||0.41||
 data_compo_Ant_file|stem|ec42c23c7ae82b06|07b0e265dabbe2f7|ef46db3751d8e999|165441666|data/Fe_in_preys.xlsx|t19044.4208979654s|c361092a91ff6fbb|21698|file|vector|||0||
 data_compo_Ant|stem|547cc0bcd8575cc4|522fe7b710078b3e|987f0081cb9b784a|-1308918823||t19044.4688004553s|9fa9b552c5b7ad8f|3679|rds|vector|||0.18||
+diet_nut_abund_input|stem|d2911f6660e00091|4a4ad3671762b2f5|6db4a624aa9286be|-2069444065||t19044.469098073s|c02289ffbc9c9814|42955|rds|vector|||0.16||
+full_input|stem|b5a8bf7a2b39b6de|1270585f17844d86|3a5f8c15b00a3b39|572057942||t19044.4873872955s|904318f6354e7592|43148|rds|vector|||0.22||
 clean_bind_compo_tibbles|function|35c5ee11219512ec||||||||||||||
+kleber|function|e592108d8e9de9ed||||||||||||||
 add_abund|function|eae7981b3aa809cd||||||||||||||
+approx_se|function|484cf25eb33e6898||||||||||||||
+add_nrjtic|function|8576eb8711e7f5f7||||||||||||||
 create_diet_tib|function|61e296dcabeedb7f||||||||||||||
 bootstrap_compo|function|fe0025093b4f4197||||||||||||||
 compute_nut_in_diet|function|19d3777190865c71||||||||||||||
 load_xl|function|afdc855e2ae9f85c||||||||||||||
-diet_nut_abund_input|stem|d2911f6660e00091|4a4ad3671762b2f5|6db4a624aa9286be|-2069444065||t19044.469098073s|c02289ffbc9c9814|42955|rds|vector|||0.16||
+run_model|function|ce1a0156ea006689||||||||||||||
+model_output|stem|4dac31ff010af7f1|6d30a6d7190abf9f|c8b0144e60cac82f|90343381||t19044.6019982337s|96e5a038878811dc|949475|rds|vector|||0.27||
