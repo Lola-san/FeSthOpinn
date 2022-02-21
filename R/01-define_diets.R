@@ -29,6 +29,6 @@ create_diet_tib <- function() {
                   "Leptonychotes weddellii", 0.85, 0.18, 0.02, 0, 0, "Casaux et al 1997, Lake et al 2003, Zhao et al 2004,
                             Casaux et al 2006,  Southwell et al 2012, Negri et al 2016, Goetz et al 2017, Hückstädt et al 2017,
                             Brault et al 2019") |>
-    tidyr::nest(Diet = c(fish:bird))
+    tidyr::nest(Diet = c(Fish:Bird))
 
 }

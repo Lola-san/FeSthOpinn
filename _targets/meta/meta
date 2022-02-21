@@ -1,6 +1,9 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
-data_compo_BoB|stem|fbb201b883f4a52c|ba106c26cf6b896d|ef46db3751d8e999|-217139327|data/Nuts_in_preys.xlsx|t18788.5025500973s|595e45deffaf358d|49136|file|vector|||0||
-data_diets|stem|da8f2eca320152c0|d822a743d9cc914d|f78686cc0462cbbf|-432895262||t19037.6718865592s|1a8345dd0a5aa12a|381|rds|vector|||0.19||
+data_compo_Ant_file|stem|660bbf42c6576911|07b0e265dabbe2f7|ef46db3751d8e999|165441666|data/Fe_in_preys.xlsx|t19044.3363269969s|ddfb77a29ebf446f|21869|file|vector|||0||
+data_compo_BoB_file|stem|fbb201b883f4a52c|ba106c26cf6b896d|ef46db3751d8e999|1308473449|data/Nuts_in_preys.xlsx|t18788.5025500973s|595e45deffaf358d|49136|file|vector|||0||
 load_compo_tibbles|function|7f751aef04cd03cd||||||||||||||
-create_diet_tib|function|544b41cad74ceee0||||||||||||||
+create_diet_tib|function|61e296dcabeedb7f||||||||||||||
 load_xl|function|afdc855e2ae9f85c||||||||||||||
+data_diets|stem|b29a26c838c5a062|d822a743d9cc914d|bd0cd3a09274690c|-432895262||t19044.3389312171s|a572f1119abf83c6|621|rds|vector|||0.19||
+data_compo_Ant|stem|13d68c075b493390|522fe7b710078b3e|f56ba3a579f009c2|-1308918823||t19044.3389341377s|27f0fa95125d085b|3684|rds|vector|||0.23||
+data_compo_BoB|stem|fff9606880ae2d7b|dca8a76c50e7d104|524476d03179d856|-217139327||t19044.3389345706s|addef320e41be807|18039|rds|vector|||0.02||
