@@ -86,49 +86,31 @@ sum_vec <- function(list_of_vec) {
   return(summed_vec)
 }
 
-sum_tib <- tibble::tibble(min = sum_vec(list(purrr::pluck(model_output, "excrete_Fe_min", 1),
+sum_tib <- tibble::tibble(min = (sum_vec(list(purrr::pluck(model_output, "excrete_Fe_min", 1),
                                         purrr::pluck(model_output, "excrete_Fe_min", 2),
                                         purrr::pluck(model_output, "excrete_Fe_min", 3),
-                                        purrr::pluck(model_output, "excrete_Fe_min", 4))),
-                          max = sum_vec(list(purrr::pluck(model_output, "excrete_Fe_max", 1),
+                                        purrr::pluck(model_output, "excrete_Fe_min", 4))))$value,
+                          max = (sum_vec(list(purrr::pluck(model_output, "excrete_Fe_max", 1),
                                         purrr::pluck(model_output, "excrete_Fe_max", 2),
                                         purrr::pluck(model_output, "excrete_Fe_max", 3),
-                                        purrr::pluck(model_output, "excrete_Fe_max", 4))),
-                          mean = sum_vec(list(purrr::pluck(model_output, "excrete_Fe_mean", 1),
+                                        purrr::pluck(model_output, "excrete_Fe_max", 4))))$value,
+                          mean = (sum_vec(list(purrr::pluck(model_output, "excrete_Fe_mean", 1),
                                         purrr::pluck(model_output, "excrete_Fe_mean", 2),
                                         purrr::pluck(model_output, "excrete_Fe_mean", 3),
-                                        purrr::pluck(model_output, "excrete_Fe_mean", 4))))
+                                        purrr::pluck(model_output, "excrete_Fe_mean", 4))))$value)
 
-hist((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_min", 1),
-                  purrr::pluck(model_output, "excrete_Fe_min", 2),
-                  purrr::pluck(model_output, "excrete_Fe_min", 3),
-                  purrr::pluck(model_output, "excrete_Fe_min", 4))))$value)
+hist(sum_tib$min)
 
-summary((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_min", 1),
-                   purrr::pluck(model_output, "excrete_Fe_min", 2),
-                   purrr::pluck(model_output, "excrete_Fe_min", 3),
-                   purrr::pluck(model_output, "excrete_Fe_min", 4))))$value)
+summary(sum_tib$min)
 
 
-hist((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_max", 1),
-                   purrr::pluck(model_output, "excrete_Fe_max", 2),
-                   purrr::pluck(model_output, "excrete_Fe_max", 3),
-                   purrr::pluck(model_output, "excrete_Fe_max", 4))))$value)
+hist(sum_tib$mean)
 
-summary((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_max", 1),
-                   purrr::pluck(model_output, "excrete_Fe_max", 2),
-                   purrr::pluck(model_output, "excrete_Fe_max", 3),
-                   purrr::pluck(model_output, "excrete_Fe_max", 4))))$value)
+summary(sum_tib$mean)
 
-hist((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_mean", 1),
-                   purrr::pluck(model_output, "excrete_Fe_mean", 2),
-                   purrr::pluck(model_output, "excrete_Fe_mean", 3),
-                   purrr::pluck(model_output, "excrete_Fe_mean", 4))))$value)
+hist(sum_tib$max)
 
-summary((sum_vec(list(purrr::pluck(model_output, "excrete_Fe_mean", 1),
-                   purrr::pluck(model_output, "excrete_Fe_mean", 2),
-                   purrr::pluck(model_output, "excrete_Fe_mean", 3),
-                   purrr::pluck(model_output, "excrete_Fe_mean", 4))))$value)
+summary(sum_tib$max)
 
 
 sum_tib |>
@@ -136,4 +118,4 @@ sum_tib |>
                       names_to = "estimate",
                       values_to = "Fe_exc") |>
   ggplot2::ggplot() +
-  ggplot2::geom_histogram(ggplot2::aes(x = Fe_exc, color = estimate))
+  ggplot2::geom_histogram(ggplot2::aes(x = Fe_exc, fill = estimate))
