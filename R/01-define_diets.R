@@ -18,7 +18,7 @@
 #'
 create_diet_tib <- function() {
 
-  tibble::tribble(~ Species, ~ fish, ~ cephalopods, ~ krill, ~ mammal, ~ bird, ~ Sources,
+  tibble::tribble(~ Species, ~ Fish, ~ Cephalopod, ~ Krill, ~ Mammal, ~ Bird, ~ Sources,
                   "Hydrurga leptonyx", 0.25, 0, 0.25, 0.25, 0.25, "Green & Williams 1986, Walker et al 1998, Zhao et al 2004,
                             Hall-Aspland et al 2004, Hall-Aspland et al 2005, Kuhn et al 2006, Forcada et al 2009, Casaux et al 2009,
                             Southwell et al 2012",

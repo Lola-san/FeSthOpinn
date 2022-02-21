@@ -17,5 +17,22 @@ diet_tibb <- tibble::tribble(~ Species, ~ fish, ~ cephalopods, ~ krill, ~ mammal
                 "Ommatophoca rossii", 0.25, 0.65, 0.1, 0, 0,
                 "Leptonychotes weddellii", 0.85, 0.18, 0.02, 0, 0)
 
-diet_tibb |>
+diet_tibb <- diet_tibb |>
   tidyr::nest(Diet = c(fish:bird))
+
+
+# load nutrient in preys tibbles
+fish_ceph <- readxl::read_excel("data/Nuts_in_preys.xlsx")
+krill_bird_mam <- readxl::read_excel("data/Fe_in_preys.xlsx")
+
+# clean up first file : we want only fish and Ceph from it and we want only Fe (and NRJ...)
+head(fish_ceph)
+unique(fish_ceph$Taxa)
+
+fish_ceph <- fish_ceph |>
+  dplyr::filter(Taxa %in% c("Fish", "Cephalopod")) |>
+  dplyr::rename(Species = Sp_prey) |>
+  dplyr::select(Taxa, Species, NRJ, Fe)
+
+# clean up second file :
+head(krill_bird_mam)

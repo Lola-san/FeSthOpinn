@@ -22,6 +22,11 @@ list(
   tar_target(data_compo_BoB_file,
              "data/Nuts_in_preys.xlsx",
              format = "file"),
-  # load it
-  tar_target(data_compo_BoB, load_xl(data_compo_BoB_file))
+  # define prey composition dataset for krill, seals and penguins
+  tar_target(data_compo_Ant_file,
+             "data/Fe_in_preys.xlsx",
+             format = "file"),
+  # load them
+  tar_target(data_compo_BoB, load_xl(data_compo_BoB_file)),
+  tar_target(data_compo_Ant, load_xl(data_compo_Ant_file))
 )
