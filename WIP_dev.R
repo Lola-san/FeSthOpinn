@@ -11,21 +11,25 @@ rm(list = ls())
 
 # create tibble with species and their respective diets
 
-diet_tibb <- tibble::tribble(~ Species, ~ fish, ~ cephalopods, ~ krill, ~ mammal, ~ bird,
-                "Hydrurga leptonyx", 0.25, 0, 0.25, 0.25, 0.25,
-                "Lobodon carcinophaga", 0.05, 0.05, 0.9, 0, 0,
-                "Ommatophoca rossii", 0.25, 0.65, 0.1, 0, 0,
-                "Leptonychotes weddellii", 0.85, 0.18, 0.02, 0, 0)
-
-diet_tibb <- diet_tibb |>
-  tidyr::nest(Diet = c(fish:bird))
+diet_tibb <- tibble::tribble(~ Species, ~ Fish, ~ Cephalopod, ~ Krill, ~ Mammal, ~ Bird, ~ Sources,
+                             "Hydrurga leptonyx", 0.25, 0, 0.25, 0.25, 0.25, "Green & Williams 1986, Walker et al 1998, Zhao et al 2004,
+                            Hall-Aspland et al 2004, Hall-Aspland et al 2005, Kuhn et al 2006, Forcada et al 2009, Casaux et al 2009,
+                            Southwell et al 2012",
+                             "Lobodon carcinophaga", 0.05, 0.05, 0.9, 0, 0, "Green & Williams 1986, Zhao et al 2004, Dykyy 2009,
+                            Southwell et al 2012, Brault et al 2019",
+                             "Ommatophoca rossii", 0.25, 0.65, 0.1, 0, 0, "Skinner et al 1994, Zhao et al 2004, Blix & Nordoy 2007,
+                            Southwell et al 2012, Brault et al 2019, Wege et al 2021",
+                             "Leptonychotes weddellii", 0.85, 0.18, 0.02, 0, 0, "Casaux et al 1997, Lake et al 2003, Zhao et al 2004,
+                            Casaux et al 2006,  Southwell et al 2012, Negri et al 2016, Goetz et al 2017, Hückstädt et al 2017,
+                            Brault et al 2019") |>
+  tidyr::nest(Diet = c(Fish:Bird))
 
 
 # load nutrient in preys tibbles
 fish_ceph <- readxl::read_excel("data/Nuts_in_preys.xlsx")
 krill_bird_mam <- readxl::read_excel("data/Fe_in_preys.xlsx")
 
-# clean up first file : we want only fish and Ceph from it and we want only Fe (and NRJ...)
+# clean up first file : we want only Fish and Ceph from it and we want only Fe (and NRJ...)
 head(fish_ceph)
 unique(fish_ceph$Taxa)
 
@@ -34,5 +38,43 @@ fish_ceph <- fish_ceph |>
   dplyr::rename(Species = Sp_prey) |>
   dplyr::select(Taxa, Species, NRJ, Fe)
 
-# clean up second file :
+# clean up second file
 head(krill_bird_mam)
+colnames(krill_bird_mam)
+
+krill_bird_mam |>
+  dplyr::filter(Taxa %in% c("Krill", "Other zooplankton")) |>
+  dplyr::summarise(mean_NRJ = mean(nrj_ww_KJ_g, na.rm = TRUE))
+
+krill_bird_mam |>
+  dplyr::filter(Taxa %in% c("Penguins", "Seal")) |>
+  dplyr::summarise(mean_NRJ = mean(nrj_ww_KJ_g, na.rm = TRUE))
+
+krill_bird_mam <- krill_bird_mam |>
+  dplyr::rename(Fe = Fe_mean_ww_mg_kg,
+                NRJ = nrj_ww_KJ_g) |>
+  # keep only values of concentration in muscle for seals and penguins (and na for krill)
+  dplyr::filter(Tissue %in% c("Muscle", NA)) |>
+  # define NRJ densities values (mean of values from litterature for Krill, total guess for Penguins & seals)
+  dplyr::mutate(NRJ = dplyr::case_when(Taxa %in% c("Krill", "Other zooplankton") ~ 5.04,
+                                Taxa %in% c("Penguins", "Seal") ~ 10,
+                                TRUE ~ NRJ)) |>
+  dplyr::select(Taxa, Species, NRJ, Fe)
+
+# bind the two tables
+compo_preys <- rbind(fish_ceph, krill_bird_mam) |>
+  # there are zooplankton lines that were used to compute mean of nrj but with no Fe concentrations
+  dplyr::filter(!(is.na(Fe))) |>
+  # adapt taxa name with those used for definition of diet
+  dplyr::mutate(Taxa = dplyr::case_when(Taxa == "Other zooplankton" ~ "Krill", # in this first approach
+                                        Taxa == "Seal" ~ "Mammal",
+                                        Taxa == "Penguins" ~ "Bird",
+                                        TRUE ~ Taxa))
+
+
+compo_preys |>
+  dplyr::group_by(Taxa) |>
+  # bootstrap : sample nsim species from each taxa
+  dplyr::slice_sample(n = 1e2, replace = TRUE)
+
+
