@@ -1,6 +1,6 @@
 ##--------------------------------------------------------------------------------------------------------
 ## SCRIPT : Define diets of pinnipeds species
-## 04-run_model.R
+## 05-run_model.R
 ##
 ## Authors : Lola Gilbert
 ## Last update : 2022-02
@@ -78,44 +78,44 @@ run_model <- function(input_tibb, nsim) {
                             dietQuality = purrr::pluck(NRJ_diet, ., 1))),
       # Population consumption and needs with min abundance estimates
       conso_pop_min = seq_along(Abund_min) |> # Annual amount of prey consumed by the population in kg
-        purrr::map(~ purrr::pluck(Abund_min, ., 1)*365*purrr::pluck(Indi_data, ., "Ration")),
+        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund_min, ., 1)*365*purrr::pluck(Indi_data, ., "Ration"))),
       Needs_pop_min = seq_along(Abund_min) |> # Annual need of the population in kJ
-        purrr::map(~ purrr::pluck(Abund_min, ., 1)*purrr::pluck(Indi_data, ., "ADMR")),
+        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund_min, ., 1)*purrr::pluck(Indi_data, ., "ADMR"))),
       # Population consumption and needs with max abundance estimates
       conso_pop_max = seq_along(Abund_max) |> # Annual amount of prey consumed by the population in kg
-        purrr::map(~ purrr::pluck(Abund_max, ., 1)*365*purrr::pluck(Indi_data, ., "Ration")),
+        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund_max, ., 1)*365*purrr::pluck(Indi_data, ., "Ration"))),
       Needs_pop_max = seq_along(Abund_max) |> # Annual need of the population in kJ
-        purrr::map(~ purrr::pluck(Abund_max, ., 1)*365*purrr::pluck(Indi_data, ., "ADMR")),
+        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund_max, ., 1)*365*purrr::pluck(Indi_data, ., "ADMR"))),
       # Population consumption and needs with mean abundance estimates
       conso_pop_mean = seq_along(Abund_mean) |> # Annual amount of prey consumed by the population in kg
-        purrr::map(~ purrr::pluck(Abund_mean, ., 1)*365*purrr::pluck(Indi_data, ., "Ration")),
+        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund_mean, ., 1)*365*purrr::pluck(Indi_data, ., "Ration"))),
       Needs_pop_mean = seq_along(Abund_mean) |> # Annual need of the population in kJ
-        purrr::map(~ purrr::pluck(Abund_mean, ., 1)*365*purrr::pluck(Indi_data, ., "ADMR"))
+        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund_mean, ., 1)*365*purrr::pluck(Indi_data, ., "ADMR")))
     ) |>
     ############ COMPUTE MODEL OUTPUTS : Fe EXCRETION  #########################
   dplyr::mutate(conso_diet_ind = seq_along(Indi_data) |> # Species daily consumption of taxa (kg)
                   purrr::map(~ (purrr::pluck(Indi_data, .)$Ration) * purrr::pluck(Diet, .)),
                 conso_diet_min = seq_along(conso_pop_min) |> # Population annual consumption of taxa (kg)
-                  purrr::map(~ purrr::pluck(conso_pop_min, .) * purrr::pluck(Diet, .)),
+                  purrr::map(~ purrr::pluck(conso_pop_min, ., 1) * purrr::pluck(Diet, .)),
                 conso_diet_max = seq_along(conso_pop_max) |> # Population annual consumption of taxa (kg)
-                  purrr::map(~ purrr::pluck(conso_pop_max, .) * purrr::pluck(Diet, .)),
+                  purrr::map(~ purrr::pluck(conso_pop_max, ., 1) * purrr::pluck(Diet, .)),
                 conso_diet_mean = seq_along(conso_pop_mean) |> # Population annual consumption of taxa (kg)
-                  purrr::map(~ purrr::pluck(conso_pop_mean, .) * purrr::pluck(Diet, .)),
+                  purrr::map(~ purrr::pluck(conso_pop_mean, ., 1) * purrr::pluck(Diet, .)),
                 ## Fe CONSUMPTION AND EXCRETION !
                 conso_Fe_ind = seq_along(Indi_data) |> # Individual daily consumption of nutrient in mg
                   purrr::map(~ purrr::pluck(Indi_data, ., "Ration") * purrr::pluck(Fe_diet, .)),
                 excrete_Fe_ind = seq_along(Fe_exc) |> # Individual daily excretion of nutrient (mg/day)
                   purrr::map(~ purrr::pluck(conso_Fe_ind, .) * purrr::pluck(Fe_exc, .)),
                 conso_Fe_min = seq_along(conso_pop_min) |> # Annual consumption of nutrient
-                  purrr::map(~ (purrr::pluck(conso_pop_min, .) * purrr::pluck(Fe_diet, .))/1e9), # from mg to tonnes
+                  purrr::map(~ (purrr::pluck(conso_pop_min, ., 1) * purrr::pluck(Fe_diet, .))/1e9), # from mg to tonnes
                 excrete_Fe_min = seq_along(conso_Fe_min) |> # Annual excretion of nutrient
                   purrr::map(~ purrr::pluck(conso_Fe_min, .) * purrr::pluck(Fe_exc, .)),
                 conso_Fe_max = seq_along(conso_pop_max) |> # Annual consumption of nutrient
-                  purrr::map(~ (purrr::pluck(conso_pop_max, .) * purrr::pluck(Fe_diet, .))/1e9), # from mg to tonnes
+                  purrr::map(~ (purrr::pluck(conso_pop_max, ., 1) * purrr::pluck(Fe_diet, .))/1e9), # from mg to tonnes
                 excrete_Fe_max = seq_along(conso_Fe_max) |> # Annual excretion of nutrient
                   purrr::map(~ purrr::pluck(conso_Fe_max, .) * purrr::pluck(Fe_exc, .)),
                 conso_Fe_mean = seq_along(conso_pop_mean) |> # Annual consumption of nutrient
-                  purrr::map(~ (purrr::pluck(conso_pop_mean, .) * purrr::pluck(Fe_diet, .))/1e9), # from mg to tonnes
+                  purrr::map(~ (purrr::pluck(conso_pop_mean, ., 1) * purrr::pluck(Fe_diet, .))/1e9), # from mg to tonnes
                 excrete_Fe_mean = seq_along(conso_Fe_mean) |> # Annual excretion of nutrient
                   purrr::map(~ purrr::pluck(conso_Fe_mean, .) * purrr::pluck(Fe_exc, .))
   )
