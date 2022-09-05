@@ -77,6 +77,61 @@ compo_preys |>
   # bootstrap : sample nsim species from each taxa
   dplyr::slice_sample(n = 1e2, replace = TRUE)
 
+
+
+
+### composition of diet mean values
+data <- load_xl(pathxl = "data/prey_compo_compiled.xlsx")
+
+data |>
+  dplyr::mutate(Taxa = dplyr::case_when(Taxa %in% c("Krill", "Other zooplankton") ~ "Krill & other zooplankton",
+                                        TRUE ~ Taxa)) |>
+  dplyr::filter(Taxa %in% c("Fish", "Cephalopod", "Krill & other zooplankton", "Pinniped (muscle)", "Penguins (muscle)")) |>
+  dplyr::group_by(Taxa) |>
+  dplyr::summarise(mean_nrj = mean(NRJ_ww, na.rm = TRUE),
+                  sd_nrj = sd(NRJ_ww, na.rm = TRUE),
+                   mean_Fe = mean(`Fe_ww_mg_kg-1`, na.rm = TRUE),
+                  sd_Fe = sd(`Fe_ww_mg_kg-1`, na.rm = TRUE) )
+
+targets::tar_load(diet_input)
+
+trial <- diet_input |>
+  dplyr::mutate(Diet_compo = seq_along(Diet) |>
+                  purrr::map(~ purrr::pluck(Diet, .) |>
+                               dplyr::rename("Krill & other zooplankton" = Krill,
+                                             "Pinniped (muscle)" = Mammal,
+                                             "Penguins (muscle)" = Bird) |>
+                               tidyr::pivot_longer(cols = c("Fish", "Cephalopod", "Krill & other zooplankton",
+                                               "Pinniped (muscle)", "Penguins (muscle)"),
+                                      names_to = "Taxa",
+                                      values_to = "%W") |>
+                               dplyr::left_join(data |>
+                                                  dplyr::mutate(Taxa = dplyr::case_when(Taxa %in% c("Krill", "Other zooplankton") ~ "Krill & other zooplankton",
+                                                                                        TRUE ~ Taxa)) |>
+                                                  dplyr::filter(Taxa %in% c("Fish", "Cephalopod", "Krill & other zooplankton", "Pinniped (muscle)", "Penguins (muscle)")) |>
+                                                  dplyr::group_by(Taxa) |>
+                                                  dplyr::summarise(NRJ_kJ.kg = mean(NRJ_ww, na.rm = TRUE),
+                                                                   Fe_mg.kg = mean(`Fe_ww_mg_kg-1`, na.rm = TRUE))  |>
+                                                  # set NRJ content of pinnipeds and penguins to 10
+                                                  dplyr::mutate(`NRJ_kJ.kg`= dplyr::case_when(Taxa %in% c("Pinniped (muscle)",
+                                                                                                         "Penguins (muscle)") ~ 10,
+                                                                                             TRUE ~ `NRJ_kJ.kg`))
+                                                  ) |>
+                               dplyr::mutate(WNRJ = `%W` * `NRJ_kJ.kg`,
+                                             WFe = `%W` * `Fe_mg.kg`) |>
+                               dplyr::summarise(mean_NRJ_diet = sum(WNRJ),
+                                                mean_Fe_diet = sum(WFe))
+                             )
+                ) |>
+  tidyr::unnest(Diet_compo)
+
+
+
+
+
+##### output$
+targets::tar_load(model_output)
+
 sum_vec <- function(list_of_vec) {
   summed_vec <- rep(0, length(list_of_vec[[1]]))
 

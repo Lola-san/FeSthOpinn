@@ -17,20 +17,15 @@
 add_nrjtic <- function(diet_nut_abund_tibb) {
 
   diet_nut_abund_tibb |>
-    dplyr::mutate(Mass = dplyr::case_when(Species == "Hydrurga leptonyx" ~ (546+382)/2,
-                                          Species == "Lobodon carcinophaga" ~ (216+196)/2,
-                                          Species == "Ommatophoca rossii" ~ (163+128)/2,
-                                          Species == "Leptonychotes weddellii" ~ (162+154)/2),
-                  Mass_min = Mass - Mass*0.1,
-                  Mass_max = Mass + Mass*0.1,
+    dplyr::mutate(Mass = dplyr::case_when(Species == "Hydrurga leptonyx" ~ (338+348)/2,
+                                          Species == "Lobodon carcinophaga" ~ 177,
+                                          Species == "Ommatophoca rossii" ~ 158,
+                                          Species == "Leptonychotes weddellii" ~ 252),
+                  # data is from Castellini et al. 2009 for all but leopard seals and from Forcada et al 2009 for leopard seals
                   Beta = 3,
-                  Beta_min = Beta - 0.5,
-                  Beta_max = Beta + 0.5,
-                  Fe_exc = 0.9
+                  Fe_exc = 0.80
                   ) |>
-    tidyr::nest(Mass = c(Mass,
-                         Mass_min,
-                         Mass_max),
-                Beta = c(Beta, Beta_min, Beta_max))
+    tidyr::nest(Mass = c(Mass),
+                Beta = c(Beta))
 
 }
