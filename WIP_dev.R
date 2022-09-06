@@ -174,3 +174,211 @@ sum_tib |>
                       values_to = "Fe_exc") |>
   ggplot2::ggplot() +
   ggplot2::geom_histogram(ggplot2::aes(x = Fe_exc, fill = estimate))
+
+
+
+# to simulate abundance uncertainty
+abundance <- function(abund_bar,
+                      abund_min, abund_max,
+                      n_sim){
+  abund_sd <- (abund_max - abund_min)/4
+  abund_cv <- abund_sd/abund_bar
+  sigma <- sqrt(log1p(abund_cv*abund_cv))
+  mu <- log(abund_bar/sqrt(1+abund_cv*abund_cv))
+  return(tibble::as_tibble_col(rlnorm(n_sim, mu, sigma)))
+}
+
+#hydrlep
+hist(abundance(abund_bar = 35500, abund_min = 10900, abund_max = 102600,
+               n_sim = 100)$value)
+summary(abundance(abund_bar = 35500, abund_min = 10900, abund_max = 102600,
+                  n_sim = 100)$value)
+
+hist(truncnorm::rtruncnorm(n = 100,
+                           a = 10900,
+                           b = 102600,
+                           mean = 35500,
+                           sd = 22925))
+summary(truncnorm::rtruncnorm(n = 100,
+                           a = 10900,
+                           b = 102600,
+                           mean = 35500,
+                           sd = 22925))
+
+
+#lobocar
+hist(abundance(abund_bar = 5869400, abund_min = 3699400, abund_max = 8616700,
+               n_sim = 100)$value)
+summary(abundance(abund_bar = 5869400, abund_min = 3699400, abund_max = 8616700,
+                  n_sim = 100)$value)
+
+hist(truncnorm::rtruncnorm(n = 100,
+                           a = 3699400,
+                           b = 8616700,
+                           mean = 5869400,
+                           sd = (8616700 - 3699400)/4))
+summary(truncnorm::rtruncnorm(n = 100,
+                              a = 3699400,
+                              b = 8616700,
+                              mean = 5869400,
+                              sd = (8616700 - 3699400)/4))
+
+#ommaros
+hist(abundance(abund_bar = 78500, abund_min = 39400, abund_max = 231200,
+               n_sim = 100)$value)
+summary(abundance(abund_bar = 78500, abund_min = 39400, abund_max = 231200,
+                  n_sim = 100)$value)
+
+
+hist(truncnorm::rtruncnorm(n = 100,
+                           a = 39400,
+                           b = 231200,
+                           mean = 78500,
+                           sd = (231200 - 39400)/4))
+summary(truncnorm::rtruncnorm(n = 100,
+                              a = 39400,
+                              b = 231200,
+                              mean = 78500,
+                              sd = (231200 - 39400)/4))
+
+
+#leptwed
+hist(abundance(abund_bar = 202000, abund_min = 85345, abund_max = 523140,
+               n_sim = 100)$value)
+summary(abundance(abund_bar = 202000, abund_min = 85345, abund_max = 523140,
+                  n_sim = 100)$value)
+
+hist(truncnorm::rtruncnorm(n = 100,
+                           a = 85345,
+                           b = 523140,
+                           mean = 202000,
+                           sd = (523140 - 85345)/4))
+summary(truncnorm::rtruncnorm(n = 100,
+                              a = 85345,
+                              b = 523140,
+                              mean = 202000,
+                              sd = (523140 - 85345)/4))
+
+
+
+### OUPTUT
+
+targets::tar_load(model_output)
+
+sum_vec <- function(list_of_vec) {
+  summed_vec <- rep(0, length(list_of_vec[[1]]))
+
+  for (j in seq_along(list_of_vec)) {
+    summed_vec <- summed_vec + list_of_vec[[j]]
+  }
+  return(summed_vec)
+}
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(excrete_Fe) |>
+  dplyr::rename(excrete_Fe = value) |>
+  dplyr::summarize(min = min(excrete_Fe),
+                   `2.5_quant` = quantile(excrete_Fe, probs = c(0.025)),
+                   mean = mean(excrete_Fe),
+                   median = median(excrete_Fe),
+                   `97.5_quant` = quantile(excrete_Fe, probs = c(0.975)),
+                   max = max(excrete_Fe)) |>
+  ggplot2::ggplot() +
+  ggplot2::geom_errorbar(ggplot2::aes(x = Species, ymin = `2.5_quant`, ymax = `97.5_quant`, color = Species),
+                         size = 1) +
+  ggplot2::geom_point(ggplot2::aes(x = Species, y = mean, color = Species)) +
+  ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
+                                                                4, # nb of areas
+                                                                type = "continuous"),
+                              name = "Species") +
+  ggplot2::xlab("Species") +
+  ggplot2::ylab("Fe release (in t/yr)") +
+  ggplot2::theme(legend.position = "none",
+                 axis.text.x = ggplot2::element_text(face = "italic", angle = 20, hjust = 1, size = 12))
+
+
+model_output |>
+  dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+  tidyr::unnest(tot_Fe) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value))
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(excrete_Fe) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value))
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(Abund) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value))
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(Mass) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value))
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(Beta) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value))
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(NRJ_diet) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value))
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(Fe_diet) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value))
+
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(conso_diet_ind) |>
+  tidyr::pivot_longer(cols = c(Fish:`Penguins (muscle)`),
+                      names_to = "Prey group",
+                      values_to = "Daily consumption (kg)") |>
+  dplyr::group_by(Species, `Prey group`) |>
+  dplyr::summarize(min = min(`Daily consumption (kg)`),
+                   `2.5_quant` = quantile(`Daily consumption (kg)`, probs = c(0.025)),
+                   mean = mean(`Daily consumption (kg)`),
+                   median = median(`Daily consumption (kg)`),
+                   `97.5_quant` = quantile(`Daily consumption (kg)`, probs = c(0.975)),
+                   max = max(`Daily consumption (kg)`))

@@ -34,6 +34,6 @@ list(
   tar_target(full_input, add_nrjtic(diet_nut_abund_input)),
   # RUN MODEL
   tar_target(model_output, run_model(full_input,
-                                     nsim = 1e3) ########## NSIM HERE
+                                     nsim = 1e5) ########## NSIM HERE
              )
 )

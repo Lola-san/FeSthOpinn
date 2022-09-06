@@ -31,7 +31,7 @@ create_diet_tib <- function() {
   #                           Brault et al 2019")
 
   tibble::tribble(~ Species, ~ Fish, ~ Cephalopod, ~ "Krill & other zooplankton", ~ "Pinniped (muscle)", ~ "Penguins (muscle)", ~ Sources,
-                  "Hydrurga leptonyx", 0.61, 0, 0.12, 0.21, 0.6, "McCormack et al 2020, Green & Williams 1986, Walker et al 1998, Zhao et al 2004,
+                  "Hydrurga leptonyx", 0.61, 0, 0.12, 0.21, 0.06, "McCormack et al 2020, Green & Williams 1986, Walker et al 1998, Zhao et al 2004,
   #                           Hall-Aspland et al 2004, Hall-Aspland et al 2005, Kuhn et al 2006, Forcada et al 2009, Casaux et al 2009,
   #                           Southwell et al 2012",
                   "Lobodon carcinophaga", 0.005, 0.01, 0.985, 0, 0, "McCormack et al 2020",

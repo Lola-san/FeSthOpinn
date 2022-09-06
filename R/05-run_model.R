@@ -12,9 +12,6 @@
 
 ####################### PRELIMINARY FUNCTIONS ##################################
 
-# to compute standard error from a min and a max
-approx_se <- function(lower, upper) { return((upper-lower)/4) }
-
 # to compute the daily need of an individual (Kleber equation) of a given species
 kleber <- function(beta, mass, n_sim,
                    assimil_mean = NULL,  assimil_se = 0.05,
@@ -33,7 +30,17 @@ kleber <- function(beta, mass, n_sim,
   else { return(list(ADMR = beta * (293.1*mass^(3/4)))) }
 }
 
-
+# to simulate abundance uncertainty
+abundance <- function(abund_bar,
+                      abund_min,
+                      abund_max,
+                      n_sim){
+  return(tibble::as_tibble_col(truncnorm::rtruncnorm(n = n_sim,
+                                                     a = abund_min,
+                                                     b = abund_max,
+                                                     mean = abund_bar,
+                                                     sd = (abund_max - abund_min)/4)))
+}
 
 ############################# COMPUTATION ######################################
 
@@ -46,9 +53,10 @@ run_model <- function(input_tibb, nsim) {
           purrr::pluck(Diet, .), nsim)), # the unique line to get the same dimensions as vector to be multiplied by
       ###### SIMULATE UNCERTAINTY IN ABUNDANCE
       Abund = seq_along(Abund) |>
-        purrr::map(~ tibble::as_tibble_col(rlnorm(n = nsim,
-                                                  mean = Abund[[.]]$Abund_mean,
-                                                  sd = Abund[[.]]$Abund_sd))),
+        purrr::map(~ abundance(abund_bar = purrr::pluck(Abund, ., "Abund_mean"),
+                               abund_min = purrr::pluck(Abund, ., "Abund_min"),
+                               abund_max = purrr::pluck(Abund, ., "Abund_max"),
+                               n_sim = nsim)),
       ###### SIMULATE UNCERTAINTY IN MASS, BETA, EXCRETION RATE AND NUMBER OF DAYS FEEDING
       Mass = seq_along(Mass) |>
         purrr::map(~ tibble::as_tibble_col(rnorm(nsim,
