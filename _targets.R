@@ -32,8 +32,33 @@ list(
   tar_target(diet_nut_abund_input, add_abund(diet_nut_input)),
   #### add nrjtic data
   tar_target(full_input, add_nrjtic(diet_nut_abund_input)),
-  # RUN MODEL
+  ################## RUN MODEL ####################
   tar_target(model_output, run_model(full_input,
                                      nsim = 1e5) ########## NSIM HERE
-             )
+             ),
+  # generate outputs
+  tar_target(fig_tot_Fe_output, fig_tot_Fe_released(model_output,
+                                                "output",
+                                                "fig_tot_Fe")),
+  tar_target(fig_tot_Fe_file, fig_tot_Fe_released(model_output,
+                                              "file",
+                                              "fig_tot_Fe")),
+  tar_target(fig_tot_Fe_comp_output, fig_tot_Fe_released_comp(model_output,
+                                                    "output",
+                                                    "fig_tot_Fe_comp")),
+  tar_target(fig_tot_Fe_comp_file, fig_tot_Fe_released_comp(model_output,
+                                                  "file",
+                                                  "fig_tot_Fe_comp")),
+  tar_target(fig_sp_Fe_output, fig_sp_Fe_released(model_output,
+                                                    "output",
+                                                    "fig_sp_Fe")),
+  tar_target(fig_sp_Fe_file, fig_sp_Fe_released(model_output,
+                                                  "file",
+                                                  "fig_sp_Fe")),
+  tar_target(supp_mat1_output, supp_table_param(model_output,
+                                         "output",
+                                         "supp_mat1")),
+  tar_target(supp_mat1_file, supp_table_param(model_output,
+                                                "file",
+                                                "supp_mat1"))
 )

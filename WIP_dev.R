@@ -261,7 +261,7 @@ summary(truncnorm::rtruncnorm(n = 100,
 
 
 
-### OUPTUT
+### OUTPUT
 
 targets::tar_load(model_output)
 
@@ -297,7 +297,6 @@ model_output |>
   ggplot2::theme(legend.position = "none",
                  axis.text.x = ggplot2::element_text(face = "italic", angle = 20, hjust = 1, size = 12))
 
-
 model_output |>
   dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
   tidyr::unnest(tot_Fe) |>
@@ -309,6 +308,31 @@ model_output |>
                    max = max(value))
 
 model_output |>
+  dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+  tidyr::unnest(tot_Fe) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value)) |>
+  dplyr::mutate(Param = "Total Fe released (t/yr)")|>
+  ggplot2::ggplot() +
+  ggplot2::geom_errorbar(ggplot2::aes(x = Param, ymin = `2.5_quant`, ymax = `97.5_quant`, color = Param),
+                         size = 1) +
+  ggplot2::geom_point(ggplot2::aes(x = Param, y = mean, color = Param)) +
+  ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
+                                                                1, # nb of areas
+                                                                type = "continuous")) +
+  ggplot2::scale_x_discrete(labels = c("0", "100", "200", "300", "400", "500", "600"),
+                            breaks = c(0, 100, 200, 300, 400, 500, 600)) +
+  ggplot2::xlab("Total Fe released by crabeater, Weddell, Ross and leopard seals") +
+  ggplot2::ylab("Fe released (in t/yr)") +
+  ggplot2::theme(legend.position = "none",
+                 axis.text.x = ggplot2::element_text(face = "bold", size = 12))
+
+# create table
+model_output |>
   dplyr::group_by(Species) |>
   tidyr::unnest(excrete_Fe) |>
   dplyr::summarize(min = min(value),
@@ -316,7 +340,18 @@ model_output |>
                    mean = mean(value),
                    median = median(value),
                    `97.5_quant` = quantile(value, probs = c(0.975)),
-                   max = max(value))
+                   max = max(value)) |>
+  dplyr::mutate(Parameter = "Fe release") |>
+  dplyr::bind_rows(model_output |>
+                     dplyr::group_by(Species) |>
+                     tidyr::unnest(Abund) |>
+                     dplyr::summarize(min = min(value),
+                                      `2.5_quant` = quantile(value, probs = c(0.025)),
+                                      mean = mean(value),
+                                      median = median(value),
+                                      `97.5_quant` = quantile(value, probs = c(0.975)),
+                                      max = max(value)) |>
+                     dplyr::mutate(Parameter = "Population abundance"))
 
 model_output |>
   dplyr::group_by(Species) |>
@@ -382,3 +417,22 @@ model_output |>
                    median = median(`Daily consumption (kg)`),
                    `97.5_quant` = quantile(`Daily consumption (kg)`, probs = c(0.975)),
                    max = max(`Daily consumption (kg)`))
+
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(Indi_data) |>
+  tidyr::pivot_longer(cols = c(ADMR:`PercentBM`),
+                      names_to = "Parameter",
+                      values_to = "value") |>
+  dplyr::group_by(Species, `Parameter`) |>
+  dplyr::mutate(Parameter = dplyr::case_when(Parameter == "A_rate" ~ "Assimilation rate",
+                                             Parameter == "PercentBM" ~ "% of body mass",
+                                             Parameter == "Ration" ~ "Daily ration (kg)",
+                                             TRUE ~ Parameter)) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value))

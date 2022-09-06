@@ -9,5 +9,5 @@
 
 # load excel files
 load_xl <- function(pathxl) {
-  readxl::read_excel(pathxl)
+  openxlsx::read.xlsx(pathxl)
 }
