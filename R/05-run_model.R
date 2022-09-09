@@ -15,11 +15,16 @@
 # to compute the daily need of an individual (Kleber equation) of a given species
 kleber <- function(beta, mass, n_sim,
                    assimil_mean = NULL,  assimil_se = 0.05,
+                   assimil_min, assimil_max,
                    dietQuality
 ) {
   # should the daily ration be computed?
   if(!is.null(assimil_mean) && !is.null(dietQuality)) {
-    a <- rnorm(n_sim, assimil_mean, assimil_se) # assimilation
+    a <- truncnorm::rtruncnorm(n = n_sim,
+                               mean = assimil_mean,
+                               sd = assimil_se,
+                               a = assimil_min,
+                               b = assimil_max) # assimilation
 
     return(tibble::tibble(ADMR = beta * (293.1*mass^(3/4)),
                           A_rate = a,
@@ -57,29 +62,29 @@ run_model <- function(input_tibb, nsim) {
                                abund_min = purrr::pluck(Abund, ., "Abund_min"),
                                abund_max = purrr::pluck(Abund, ., "Abund_max"),
                                n_sim = nsim)),
-      ###### SIMULATE UNCERTAINTY IN MASS, BETA, EXCRETION RATE AND NUMBER OF DAYS FEEDING
+      ###### SIMULATE UNCERTAINTY IN MASS, BETA, Fe EXCRETION RATE
       Mass = seq_along(Mass) |>
-        purrr::map(~ tibble::as_tibble_col(rnorm(nsim,
-                                                 mean = Mass[[.]]$Mass,
-                                                 sd = 0.2 * Mass[[.]]$Mass))),
+        purrr::map(~ tibble::as_tibble_col(truncnorm::rtruncnorm(n = nsim,
+                                                                 mean = purrr::pluck(Mass, .,"Mass_mean"),
+                                                                 sd = 0.2 * purrr::pluck(Mass, .,"Mass_mean"),
+                                                                 a = purrr::pluck(Mass, .,"Mass_min"),
+                                                                 b = purrr::pluck(Mass, .,"Mass_max")))),
       Beta = seq_along(Beta) |>
-        purrr::map(~ tibble::as_tibble_col(rnorm(nsim,
-                                                 mean = Beta[[.]]$Beta,
-                                                 sd = 0.5))),
+        purrr::map(~ tibble::as_tibble_col(truncnorm::rtruncnorm(n = nsim,
+                                                                 mean = purrr::pluck(Beta, .,"Beta_mean"),
+                                                                 sd = 0.5,
+                                                                 a = purrr::pluck(Beta, .,"Beta_min"),
+                                                                 b = purrr::pluck(Beta, .,"Beta_max")))),
       Fe_exc = seq_along(Fe_exc) |> # nutrient excretion rate
         purrr::map(~ tibble::as_tibble_col(runif(n = nsim,
                                                  min = Fe_exc - 0.1,
                                                  max = Fe_exc + 0.1))),
-      Nb_days = seq_along(Beta) |>
-        purrr::map(~ tibble::as_tibble_col(runif(n = nsim,
-                                                min = 325,
-                                                max = 360))),
-      ###### SIMULATE UNCERTAINTY IN MASS, BETA, EXCRETION RATE AND NUMBER OF DAYS FEEDING
+      ###### SIMULATE UNCERTAINTY IN MEAN COMPOSITION OF THE DIET
       NRJ_diet = seq_along(Diet) |>
         purrr::map(~ tibble::as_tibble_col(rnorm(n = nsim,
                                                  mean = purrr::pluck(mean_NRJ_diet, .) * 1e3, # from kJ per g to kJ per kg
                                                  sd = 0.2 * purrr::pluck(mean_NRJ_diet, .) * 1e3 # from kJ per g to kJ per kg
-                                                 ))),
+        ))),
       Fe_diet = seq_along(Diet) |>
         purrr::map(~ tibble::as_tibble_col(rnorm(n = nsim,
                                                  mean = purrr::pluck(mean_Fe_diet, .),
@@ -89,13 +94,16 @@ run_model <- function(input_tibb, nsim) {
         purrr::map(~ kleber(beta = purrr::pluck(Beta, ., 1),
                             mass = purrr::pluck(Mass, ., 1),
                             n_sim = nsim,
-                            assimil_mean = 0.8, assimil_se = 0.05,
+                            assimil_mean = 0.9,
+                            assimil_se = 0.05,
+                            assimil_min = 0.85,
+                            assimil_max = 0.95,
                             dietQuality = purrr::pluck(NRJ_diet, ., 1))),
       # Population consumption and needs
       conso_pop = seq_along(Abund) |> # Annual amount of prey consumed by the population in kg
-        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund, ., 1)*purrr::pluck(Nb_days, ., 1)*purrr::pluck(Indi_data, ., "Ration"))),
+        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund, ., 1)*365*purrr::pluck(Indi_data, ., "Ration"))),
       Needs_pop = seq_along(Abund) |> # Annual need of the population in kJ
-        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund, ., 1)*purrr::pluck(Nb_days, ., 1)*purrr::pluck(Indi_data, ., "ADMR")))
+        purrr::map(~ tibble::as_tibble_col(purrr::pluck(Abund, ., 1)*365*purrr::pluck(Indi_data, ., "ADMR")))
     ) |>
     ############ COMPUTE MODEL OUTPUTS : Fe EXCRETION  #########################
   dplyr::mutate(conso_diet_ind = seq_along(Indi_data) |> # Species daily consumption of taxa (kg)

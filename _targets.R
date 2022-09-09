@@ -36,6 +36,16 @@ list(
   tar_target(model_output, run_model(full_input,
                                      nsim = 1e5) ########## NSIM HERE
              ),
+  #################### RUN sensitivity analysis ################################
+  ############## refers to functions of 07_sensitivity_ana.R ###################
+  tar_target(sobol_index_all_sensi, create_sobol_index_tib_sensi(model_output,
+                                                                 nsim = 1e5)), ########## NSIM HERE
+  tar_target(fig_sensi_output, fig_sensitivy_indices(sobol_index_all_sensi,
+                                                     "output",
+                                                     "fig_sensi")),
+  tar_target(fig_sensi_file, fig_sensitivy_indices(sobol_index_all_sensi,
+                                                     "file",
+                                                     "fig_sensi")),
   # generate outputs
   tar_target(fig_tot_Fe_output, fig_tot_Fe_released(model_output,
                                                 "output",

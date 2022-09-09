@@ -331,6 +331,18 @@ model_output |>
   ggplot2::theme(legend.position = "none",
                  axis.text.x = ggplot2::element_text(face = "bold", size = 12))
 
+
+model_output |>
+  dplyr::group_by(Species) |>
+  tidyr::unnest(excrete_Fe) |>
+  dplyr::summarize(min = min(value),
+                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                   mean = mean(value),
+                   median = median(value),
+                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                   max = max(value)) |>
+  dplyr::mutate(Parameter = "Fe release")
+
 # create table
 model_output |>
   dplyr::group_by(Species) |>

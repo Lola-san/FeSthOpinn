@@ -1,5 +1,5 @@
 ##--------------------------------------------------------------------------------------------------------
-## SCRIPT : Define diets of pinnipeds species
+## SCRIPT : generate output figures and tables
 ## 06-generate_outputs.R
 ##
 ## Authors : Lola Gilbert
@@ -30,10 +30,40 @@ sum_vec <- function(list_of_vec) {
 #'
 #' function to generate figure displaying total amount of Fe released by the 4 species of pack-ice seals
 fig_tot_Fe_released <- function(output_tib,
-                             object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
-                             name_file) {
+                                object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
+                                name_file) {
 
   options(scipen = 999)
+  mean_tot <- (output_tib |>
+                 dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                 tidyr::unnest(tot_Fe) |>
+                 dplyr::summarize(min = min(value),
+                                  `2.5_quant` = quantile(value, probs = c(0.025)),
+                                  mean = mean(value),
+                                  median = median(value),
+                                  `97.5_quant` = quantile(value, probs = c(0.975)),
+                                  max = max(value)))$mean
+
+  firstquant <- (output_tib |>
+                   dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                   tidyr::unnest(tot_Fe) |>
+                   dplyr::summarize(min = min(value),
+                                    `2.5_quant` = quantile(value, probs = c(0.025)),
+                                    mean = mean(value),
+                                    median = median(value),
+                                    `97.5_quant` = quantile(value, probs = c(0.975)),
+                                    max = max(value)))$`2.5_quant`
+
+  lastquant <- (output_tib |>
+                  dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                  tidyr::unnest(tot_Fe) |>
+                  dplyr::summarize(min = min(value),
+                                   `2.5_quant` = quantile(value, probs = c(0.025)),
+                                   mean = mean(value),
+                                   median = median(value),
+                                   `97.5_quant` = quantile(value, probs = c(0.975)),
+                                   max = max(value)))$`97.5_quant`
+
 
   figure <- output_tib |>
     dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
@@ -55,9 +85,10 @@ fig_tot_Fe_released <- function(output_tib,
     ggplot2::ylim(c(0, 600)) +
     ggplot2::xlab(" ") +
     ggplot2::ylab("Fe released (in t/yr)") +
-    ggplot2::annotate("text", x = 0.75, y = 274, label = "mean = 274") +
-    ggplot2::annotate("text", x = 0.75, y = 150, label = "quantile 2.5% = 134") +
-    ggplot2::annotate("text", x = 0.75, y = 525, label = "quantile 97.5% = 508") +
+    ggplot2::annotate("text", x = 0.75, y = mean_tot + 10, label = paste0("mean = ", round(mean_tot))) +
+    ggplot2::annotate("text", x = 0.75, y = firstquant + 20, label = paste0("quantile 2.5% = ", round(firstquant))) +
+    ggplot2::annotate("text", x = 0.75, y = lastquant + 20, label = paste0("quantile 97.5% = ", round(lastquant))) +
+    ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "none",
                    axis.title.y = ggplot2::element_text(face = "bold", size = 14),
                    axis.title.x = ggplot2::element_text(face = "bold", size = 14),
@@ -83,38 +114,69 @@ fig_tot_Fe_released <- function(output_tib,
 #'
 #' function to generate figure displaying total amount of Fe released by the 4 species of pack-ice seals
 fig_tot_Fe_released_comp <- function(output_tib,
-                                object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
-                                name_file) {
+                                     object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
+                                     name_file) {
 
   options(scipen = 999)
 
   mean_this_study <- (output_tib |>
-    dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
-    tidyr::unnest(tot_Fe) |>
-    dplyr::summarize(min = min(value),
-                     `2.5_quant` = quantile(value, probs = c(0.025)),
-                     mean = mean(value),
-                     median = median(value),
-                     `97.5_quant` = quantile(value, probs = c(0.975)),
-                     max = max(value)))$mean
+                        dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                        tidyr::unnest(tot_Fe) |>
+                        dplyr::summarize(min = min(value),
+                                         `2.5_quant` = quantile(value, probs = c(0.025)),
+                                         mean = mean(value),
+                                         median = median(value),
+                                         `97.5_quant` = quantile(value, probs = c(0.975)),
+                                         max = max(value)))$mean
 
-  tib_summary <- tibble::tibble(Releaser = c("Sperm whales (1)",
-                                             "Chinstrap, Adelie and Gentoo penguins (165d) (2)",
-                                             "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (2))",
-                                             "Blue whales (3)",
-                                             "Crabeater, Weddell, Ross and leopard seals (this study)",
-                                             "All SO mysticetes (4)"),
-                                "Mean estimate" = c(50, 56, 169, 65, mean_this_study, 1200))
+  firstquant_this_study <- (output_tib |>
+                              dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                              tidyr::unnest(tot_Fe) |>
+                              dplyr::summarize(min = min(value),
+                                               `2.5_quant` = quantile(value, probs = c(0.025)),
+                                               mean = mean(value),
+                                               median = median(value),
+                                               `97.5_quant` = quantile(value, probs = c(0.975)),
+                                               max = max(value)))$`2.5_quant`
+  lastquant_this_study <- (output_tib |>
+                             dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                             tidyr::unnest(tot_Fe) |>
+                             dplyr::summarize(min = min(value),
+                                              `2.5_quant` = quantile(value, probs = c(0.025)),
+                                              mean = mean(value),
+                                              median = median(value),
+                                              `97.5_quant` = quantile(value, probs = c(0.975)),
+                                              max = max(value)))$`97.5_quant`
+
+  tib_summary <- tibble::tibble(Releaser = c("Sperm whales (365d) (1)",
+                                             "Chinstrap, Adelie and Gentoo penguins (165d) (4)",
+                                             "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
+                                             "Blue whales (365d) (2)",
+                                             "Crabeater, Weddell, Ross and leopard seals (365d) (this study)",
+                                             "All SO mysticetes (60-180d) (3)"),
+                                "Mean estimate" = c(50, 56, 169, 65, mean_this_study, 1200),
+                                first_quant = c(NA, NA, NA, NA, firstquant_this_study, NA),
+                                last_quant = c(NA, NA, NA, NA, lastquant_this_study, NA),)
 
   figure <- tib_summary|>
+    dplyr::mutate(Releaser = factor(Releaser,
+                                    levels = c("Sperm whales (365d) (1)",
+                                               "Blue whales (365d) (2)",
+                                               "All SO mysticetes (60-180d) (3)",
+                                               "Chinstrap, Adelie and Gentoo penguins (165d) (4)",
+                                               "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
+                                               "Crabeater, Weddell, Ross and leopard seals (365d) (this study)"))) |>
     ggplot2::ggplot() +
     ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`, color = Releaser)) +
+    ggplot2::geom_errorbar(ggplot2::aes(x = Releaser, ymin = first_quant, ymax = last_quant, color = Releaser),
+                           size = 1) +
     ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
                                                                   6, # nb of areas
                                                                   type = "continuous")) +
     ggplot2::ylim(c(0, 1250)) +
     ggplot2::xlab(" ") +
     ggplot2::ylab("Fe released (in t/yr)") +
+    ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "none",
                    axis.title.y = ggplot2::element_text(face = "bold", size = 14),
                    axis.text.y = ggplot2::element_text(face = "bold", size = 12),
@@ -122,7 +184,7 @@ fig_tot_Fe_released_comp <- function(output_tib,
 
   if (object_type == "file") {
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
-                    width = 9,
+                    width = 12,
                     height = 5)
   } else {
     figure
@@ -140,8 +202,8 @@ fig_tot_Fe_released_comp <- function(output_tib,
 #'
 #' function to generate figure displaying total amount of Fe released by the 4 species of pack-ice seals
 fig_sp_Fe_released <- function(output_tib,
-                                object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
-                                name_file) {
+                               object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
+                               name_file) {
 
   options(scipen = 999)
 
@@ -165,6 +227,7 @@ fig_sp_Fe_released <- function(output_tib,
     ggplot2::ylim(c(0, 500)) +
     ggplot2::xlab("Species") +
     ggplot2::ylab("Fe released (in t/yr)") +
+    ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "none",
                    axis.title.y = ggplot2::element_text(face = "bold", size = 14),
                    axis.title.x = ggplot2::element_text(face = "bold", size = 14),
@@ -190,8 +253,8 @@ fig_sp_Fe_released <- function(output_tib,
 #'
 #' function to generate supplementary material table with all parameters summary values
 supp_table_param <- function(output_tib,
-                                    object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
-                                    name_file) {
+                             object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
+                             name_file) {
 
   options(scipen = 999)
 
@@ -236,16 +299,6 @@ supp_table_param <- function(output_tib,
                                         `97.5_quant` = quantile(value, probs = c(0.975)),
                                         max = max(value)) |>
                        dplyr::mutate(Parameter = "Beta"),
-                     output_tib |>
-                       dplyr::group_by(Species) |>
-                       tidyr::unnest(Nb_days) |>
-                       dplyr::summarize(min = min(value),
-                                        `2.5_quant` = quantile(value, probs = c(0.025)),
-                                        mean = mean(value),
-                                        median = median(value),
-                                        `97.5_quant` = quantile(value, probs = c(0.975)),
-                                        max = max(value)) |>
-                       dplyr::mutate(Parameter = "Number of days of release during a year"),
                      output_tib |>
                        dplyr::group_by(Species) |>
                        tidyr::unnest(NRJ_diet) |>
@@ -303,11 +356,11 @@ supp_table_param <- function(output_tib,
                                         `97.5_quant` = quantile(value, probs = c(0.975)),
                                         max = max(value)) |>
                        dplyr::mutate(Parameter = "Individual daily amount of Fe released (mg)")
-                     )
+    )
 
   if (object_type == "file") {
     openxlsx::write.xlsx(table,
-                     file =paste0("output/", name_file, ".xlsx"))
+                         file =paste0("output/", name_file, ".xlsx"))
   } else {
     table
   }
