@@ -81,14 +81,16 @@ run_model <- function(input_tibb, nsim) {
                                                  max = Fe_exc + 0.1))),
       ###### SIMULATE UNCERTAINTY IN MEAN COMPOSITION OF THE DIET
       NRJ_diet = seq_along(Diet) |>
-        purrr::map(~ tibble::as_tibble_col(rnorm(n = nsim,
-                                                 mean = purrr::pluck(mean_NRJ_diet, .) * 1e3, # from kJ per g to kJ per kg
-                                                 sd = 0.2 * purrr::pluck(mean_NRJ_diet, .) * 1e3 # from kJ per g to kJ per kg
+        purrr::map(~ tibble::as_tibble_col(truncnorm::rtruncnorm(n = nsim,
+                                                                 mean = purrr::pluck(mean_NRJ_diet, .) * 1e3, # from kJ per g to kJ per kg
+                                                                 sd = 0.2 * purrr::pluck(mean_NRJ_diet, .) * 1e3, # from kJ per g to kJ per kg
+                                                                 a = 0.2 * purrr::pluck(mean_NRJ_diet, .) * 1e3 # from kJ per g to kJ per kg
         ))),
       Fe_diet = seq_along(Diet) |>
-        purrr::map(~ tibble::as_tibble_col(rnorm(n = nsim,
-                                                 mean = purrr::pluck(mean_Fe_diet, .),
-                                                 sd = 0.2 * purrr::pluck(mean_Fe_diet, .)))),
+        purrr::map(~ tibble::as_tibble_col(truncnorm::rtruncnorm(n = nsim,
+                                                                 mean = purrr::pluck(mean_Fe_diet, .),
+                                                                 sd = 0.2 * purrr::pluck(mean_Fe_diet, .),
+                                                                 a = 0.2 * purrr::pluck(mean_Fe_diet, .)))),
       ############################ COMPUTE INDIVIDUAL NRJTIC DATA, NEEDS AND CONSUMPTION OF POP ######
       Indi_data = seq_along(Mass) |>
         purrr::map(~ kleber(beta = purrr::pluck(Beta, ., 1),

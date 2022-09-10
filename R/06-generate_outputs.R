@@ -252,6 +252,39 @@ fig_sp_Fe_released <- function(output_tib,
 #'
 #'
 #' function to generate supplementary material table with all parameters summary values
+table_Fe_release_sp <- function(output_tib,
+                             object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
+                             name_file) {
+
+  options(scipen = 999)
+
+  table <- output_tib |>
+    dplyr::group_by(Species) |>
+    tidyr::unnest(excrete_Fe) |>
+    dplyr::rename(excrete_Fe = value) |>
+    dplyr::summarize(min = min(excrete_Fe),
+                     `2.5_quant` = quantile(excrete_Fe, probs = c(0.025)),
+                     mean = mean(excrete_Fe),
+                     median = median(excrete_Fe),
+                     `97.5_quant` = quantile(excrete_Fe, probs = c(0.975)),
+                     max = max(excrete_Fe))
+
+  if (object_type == "file") {
+    openxlsx::write.xlsx(table,
+                         file =paste0("output/", name_file, ".xlsx"))
+  } else {
+    table
+  }
+
+}
+
+
+#'
+#'
+#'
+#'
+#'
+#' function to generate supplementary material table with all parameters summary values
 supp_table_param <- function(output_tib,
                              object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
                              name_file) {
