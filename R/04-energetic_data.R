@@ -38,10 +38,10 @@ add_nrjtic <- function(diet_nut_abund_tibb) {
                                               Species == "Lobodon carcinophaga" ~ 1.5,
                                               Species == "Ommatophoca rossii" ~ 1.5,
                                               Species == "Leptonychotes weddellii" ~ 1.5),
-                  Beta_max = dplyr::case_when(Species == "Hydrurga leptonyx" ~ 4,
-                                              Species == "Lobodon carcinophaga" ~ 3.5,
-                                              Species == "Ommatophoca rossii" ~ 3.5,
-                                              Species == "Leptonychotes weddellii" ~ 3.5),
+                  Beta_max = dplyr::case_when(Species == "Hydrurga leptonyx" ~ 3.5,
+                                              Species == "Lobodon carcinophaga" ~ 3,
+                                              Species == "Ommatophoca rossii" ~ 3,
+                                              Species == "Leptonychotes weddellii" ~ 3),
                   Fe_exc = 0.80
     ) |>
     tidyr::nest(Mass = c(Mass_mean, Mass_min, Mass_max),

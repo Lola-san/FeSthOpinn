@@ -151,18 +151,24 @@ fig_tot_Fe_released_comp <- function(output_tib,
   tib_summary <- tibble::tibble(Releaser = c("Sperm whales (365d) (1)",
                                              "Chinstrap, Adelie and Gentoo penguins (165d) (4)",
                                              "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
-                                             "Blue whales (365d) (2)",
+                                             "Antarctic blue whales (365d) (2)",
                                              "Crabeater, Weddell, Ross and leopard seals (365d) (this study)",
-                                             "All SO mysticetes (60-180d) (3)"),
-                                "Mean estimate" = c(50, 56, 169, 65, mean_this_study, 1200),
-                                first_quant = c(NA, NA, NA, NA, firstquant_this_study, NA),
-                                last_quant = c(NA, NA, NA, NA, lastquant_this_study, NA),)
+                                             "Antarctic blue whales (60-180d) (3)",
+                                             "Humpback whales (60-180d) (3)",
+                                             "Antarctic fin whales (60-180d) (3)",
+                                             "Antarctic minke whales (60-180d) (3)"),
+                                "Mean estimate" = c(50, 56, 169, 65, mean_this_study, 15, 221, 367, 630),
+                                first_quant = c(NA, NA, NA, NA, firstquant_this_study, 9, 144, 193, 420),
+                                last_quant = c(NA, NA, NA, NA, lastquant_this_study, 24, 394, 590, 937))
 
   figure <- tib_summary|>
     dplyr::mutate(Releaser = factor(Releaser,
                                     levels = c("Sperm whales (365d) (1)",
-                                               "Blue whales (365d) (2)",
-                                               "All SO mysticetes (60-180d) (3)",
+                                               "Antarctic blue whales (365d) (2)",
+                                               "Antarctic blue whales (60-180d) (3)",
+                                               "Humpback whales (60-180d) (3)",
+                                               "Antarctic fin whales (60-180d) (3)",
+                                               "Antarctic minke whales (60-180d) (3)",
                                                "Chinstrap, Adelie and Gentoo penguins (165d) (4)",
                                                "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
                                                "Crabeater, Weddell, Ross and leopard seals (365d) (this study)"))) |>
@@ -171,20 +177,20 @@ fig_tot_Fe_released_comp <- function(output_tib,
     ggplot2::geom_errorbar(ggplot2::aes(x = Releaser, ymin = first_quant, ymax = last_quant, color = Releaser),
                            size = 1) +
     ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
-                                                                  6, # nb of areas
+                                                                  9, # nb of areas
                                                                   type = "continuous")) +
     ggplot2::ylim(c(0, 1250)) +
     ggplot2::xlab(" ") +
     ggplot2::ylab("Fe released (in t/yr)") +
     ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "none",
-                   axis.title.y = ggplot2::element_text(face = "bold", size = 14),
-                   axis.text.y = ggplot2::element_text(face = "bold", size = 12),
-                   axis.text.x = ggplot2::element_text(face = "bold", size = 12, angle = 20, hjust = 1))
+                   axis.title.y = ggplot2::element_text(face = "bold", size = 17),
+                   axis.text.y = ggplot2::element_text(face = "bold", size = 15),
+                   axis.text.x = ggplot2::element_text(face = "bold", size = 15, angle = 15, hjust = 1))
 
   if (object_type == "file") {
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
-                    width = 12,
+                    width = 24,
                     height = 5)
   } else {
     figure
@@ -360,9 +366,9 @@ supp_table_param <- function(output_tib,
                                            values_to = "value") |>
                        dplyr::group_by(Species, `Parameter`) |>
                        dplyr::mutate(Parameter = dplyr::case_when(Parameter == "A_rate" ~ "Assimilation rate",
-                                                                  Parameter == "PercentBM" ~ "% of body mass",
+                                                                  Parameter == "PercentBM" ~ "% of body mass (daily ration)",
                                                                   Parameter == "Ration" ~ "Daily ration (kg)",
-                                                                  TRUE ~ Parameter)) |>
+                                                                  Parameter == "ADMR" ~ "Average Daily Metabolic Rate (kJ)")) |>
                        dplyr::summarize(min = min(value),
                                         `2.5_quant` = quantile(value, probs = c(0.025)),
                                         mean = mean(value),
