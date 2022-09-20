@@ -98,7 +98,7 @@ run_model <- function(input_tibb, nsim) {
                             n_sim = nsim,
                             assimil_mean = 0.9,
                             assimil_se = 0.05,
-                            assimil_min = 0.85,
+                            assimil_min = 0.8,
                             assimil_max = 0.95,
                             dietQuality = purrr::pluck(NRJ_diet, ., 1))),
       # Population consumption and needs

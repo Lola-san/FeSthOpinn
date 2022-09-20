@@ -173,9 +173,9 @@ fig_tot_Fe_released_comp <- function(output_tib,
                                                "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
                                                "Crabeater, Weddell, Ross and leopard seals (365d) (this study)"))) |>
     ggplot2::ggplot() +
-    ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`, color = Releaser)) +
+    ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`, color = Releaser, size = 2)) +
     ggplot2::geom_errorbar(ggplot2::aes(x = Releaser, ymin = first_quant, ymax = last_quant, color = Releaser),
-                           size = 1) +
+                           size = .5) +
     ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
                                                                   9, # nb of areas
                                                                   type = "continuous")) +
@@ -186,12 +186,12 @@ fig_tot_Fe_released_comp <- function(output_tib,
     ggplot2::theme(legend.position = "none",
                    axis.title.y = ggplot2::element_text(face = "bold", size = 17),
                    axis.text.y = ggplot2::element_text(face = "bold", size = 15),
-                   axis.text.x = ggplot2::element_text(face = "bold", size = 15, angle = 15, hjust = 1))
+                   axis.text.x = ggplot2::element_text(face = "bold", size = 15, angle = 45, hjust = 1))
 
   if (object_type == "file") {
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
-                    width = 24,
-                    height = 5)
+                    width = 13,
+                    height = 8)
   } else {
     figure
   }
@@ -225,8 +225,8 @@ fig_sp_Fe_released <- function(output_tib,
                      max = max(excrete_Fe)) |>
     ggplot2::ggplot() +
     ggplot2::geom_errorbar(ggplot2::aes(x = Species, ymin = `2.5_quant`, ymax = `97.5_quant`, color = Species),
-                           size = 1) +
-    ggplot2::geom_point(ggplot2::aes(x = Species, y = mean, color = Species)) +
+                           size = .5) +
+    ggplot2::geom_point(ggplot2::aes(x = Species, y = mean, color = Species, size = 2)) +
     ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
                                                                   4, # nb of areas
                                                                   type = "continuous")) +
