@@ -76,9 +76,14 @@ fig_tot_Fe_released <- function(output_tib,
                      max = max(value)) |>
     dplyr::mutate(Param = "Total Fe released (t/yr)")|>
     ggplot2::ggplot() +
-    ggplot2::geom_errorbar(ggplot2::aes(x = Param, ymin = `2.5_quant`, ymax = `97.5_quant`, color = Param),
-                           size = 1) +
-    ggplot2::geom_point(ggplot2::aes(x = Param, y = mean, color = Param)) +
+    ggplot2::geom_bar(ggplot2::aes(x = Param, y = mean), stat = "identity", fill = "skyblue") +
+    ggplot2::geom_errorbar(ggplot2::aes(x = Param, ymin = `2.5_quant`, ymax = `97.5_quant`),
+                           color = "gray40",
+                           size = 1,
+                           width = 0.5) +
+    ggplot2::geom_point(ggplot2::aes(x = Param, y = mean),
+                        color = "gray40",
+                        size = 2) +
     ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
                                                                   1, # nb of areas
                                                                   type = "continuous")) +
@@ -152,7 +157,7 @@ fig_tot_Fe_released_comp <- function(output_tib,
                                              "Chinstrap, Adelie and Gentoo penguins (165d) (4)",
                                              "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
                                              "Antarctic blue whales (365d) (2)",
-                                             "Crabeater, Weddell, Ross and leopard seals (365d) (this study)",
+                                             "Leopard, crabeater, Weddell and Ross seals (365d) (this study)",
                                              "Antarctic blue whales (60-180d) (3)",
                                              "Humpback whales (60-180d) (3)",
                                              "Antarctic fin whales (60-180d) (3)",
@@ -171,12 +176,17 @@ fig_tot_Fe_released_comp <- function(output_tib,
                                                "Antarctic minke whales (60-180d) (3)",
                                                "Chinstrap, Adelie and Gentoo penguins (165d) (4)",
                                                "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
-                                               "Crabeater, Weddell, Ross and leopard seals (365d) (this study)"))) |>
+                                               "Leopard, crabeater, Weddell and Ross seals (365d) (this study)"))) |>
     ggplot2::ggplot() +
-    ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`, color = Releaser, size = 2)) +
-    ggplot2::geom_errorbar(ggplot2::aes(x = Releaser, ymin = first_quant, ymax = last_quant, color = Releaser),
-                           size = .5) +
-    ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
+    ggplot2::geom_bar(ggplot2::aes(x = Releaser, y = `Mean estimate`,
+                      fill = Releaser),
+                      stat = "identity", alpha = 0.7) +
+    ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`, size = 2),
+                        color = "gray40") +
+    ggplot2::geom_errorbar(ggplot2::aes(x = Releaser, ymin = first_quant, ymax = last_quant),
+                           color = "gray40",
+                           width = .5, size = 1) +
+    ggplot2::scale_fill_manual(values = wesanderson::wes_palette("FantasticFox1",
                                                                   9, # nb of areas
                                                                   type = "continuous")) +
     ggplot2::ylim(c(0, 1250)) +
@@ -223,14 +233,28 @@ fig_sp_Fe_released <- function(output_tib,
                      median = median(excrete_Fe),
                      `97.5_quant` = quantile(excrete_Fe, probs = c(0.975)),
                      max = max(excrete_Fe)) |>
+    dplyr::mutate(Species_eng = dplyr::case_when(Species == "Hydrurga leptonyx" ~ "Leopard seals",
+                                                 Species == "Lobodon carcinophaga" ~ "Crabeater seals",
+                                                 Species == "Ommatophoca rossii" ~ "Ross seals",
+                                                 Species == "Leptonychotes weddellii" ~ "Weddell seals"),
+                  Species_eng = factor(Species_eng,
+                                       levels = c("Leopard seals", "Crabeater seals",
+                                                  "Weddell seals", "Ross seals"))) |>
     ggplot2::ggplot() +
-    ggplot2::geom_errorbar(ggplot2::aes(x = Species, ymin = `2.5_quant`, ymax = `97.5_quant`, color = Species),
-                           size = .5) +
-    ggplot2::geom_point(ggplot2::aes(x = Species, y = mean, color = Species, size = 2)) +
-    ggplot2::scale_color_manual(values = wesanderson::wes_palette("FantasticFox1",
+    ggplot2::geom_bar(ggplot2::aes(x = Species_eng, y = mean,
+                      fill = Species_eng),
+                      stat = "identity", alpha = 0.7) +
+    ggplot2::geom_point(ggplot2::aes(x = Species_eng, y = mean),
+                        color = "gray40",
+                        size = 1) +
+    ggplot2::geom_errorbar(ggplot2::aes(x = Species_eng, ymin = `2.5_quant`,
+                                        ymax = `97.5_quant`),
+                           color = "gray40",
+                           width = .5, size = .5) +
+    ggplot2::scale_fill_manual(values = wesanderson::wes_palette("Zissou1",
                                                                   4, # nb of areas
                                                                   type = "continuous")) +
-    ggplot2::ylim(c(0, 500)) +
+    ggplot2::ylim(c(0, 350)) +
     ggplot2::xlab("Species") +
     ggplot2::ylab("Fe released (in t/yr)") +
     ggplot2::theme_bw() +

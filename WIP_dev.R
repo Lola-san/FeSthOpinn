@@ -59,6 +59,95 @@ trial <- diet_input |>
 
 
 
+############### trying things out with figures
+
+sum_vec <- function(list_of_vec) {
+  summed_vec <- rep(0, length(list_of_vec[[1]]))
+
+  for (j in seq_along(list_of_vec)) {
+    summed_vec <- summed_vec + list_of_vec[[j]]
+  }
+  return(summed_vec)
+}
+
+
+
+options(scipen = 999)
+
+mean_this_study <- (model_output |>
+                      dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                      tidyr::unnest(tot_Fe) |>
+                      dplyr::summarize(min = min(value),
+                                       `2.5_quant` = quantile(value, probs = c(0.025)),
+                                       mean = mean(value),
+                                       median = median(value),
+                                       `97.5_quant` = quantile(value, probs = c(0.975)),
+                                       max = max(value)))$mean
+
+firstquant_this_study <- (model_output |>
+                            dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                            tidyr::unnest(tot_Fe) |>
+                            dplyr::summarize(min = min(value),
+                                             `2.5_quant` = quantile(value, probs = c(0.025)),
+                                             mean = mean(value),
+                                             median = median(value),
+                                             `97.5_quant` = quantile(value, probs = c(0.975)),
+                                             max = max(value)))$`2.5_quant`
+lastquant_this_study <- (model_output |>
+                           dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                           tidyr::unnest(tot_Fe) |>
+                           dplyr::summarize(min = min(value),
+                                            `2.5_quant` = quantile(value, probs = c(0.025)),
+                                            mean = mean(value),
+                                            median = median(value),
+                                            `97.5_quant` = quantile(value, probs = c(0.975)),
+                                            max = max(value)))$`97.5_quant`
+
+tib_summary <- tibble::tibble(Releaser = c("Sperm whales (365d) (1)",
+                                           "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
+                                           "Antarctic blue whales (365d) (2)",
+                                           "Crabeater, Weddell, Ross and leopard seals (365d) (this study)",
+                                           "Antarctic blue whales (60-180d) (3)",
+                                           "Humpback whales (60-180d) (3)",
+                                           "Antarctic fin whales (60-180d) (3)",
+                                           "Antarctic minke whales (60-180d) (3)"),
+                              "Mean estimate" = c(50, 169, 65, mean_this_study, 15, 221, 367, 630),
+                              first_quant = c(NA, NA, NA, firstquant_this_study, 9, 144, 193, 420),
+                              last_quant = c(NA, NA, NA, lastquant_this_study, 24, 394, 590, 937))
+
+tib_summary|>
+  dplyr::mutate(Releaser = factor(Releaser,
+                                  levels = c("Sperm whales (365d) (1)",
+                                             "Antarctic blue whales (365d) (2)",
+                                             "Antarctic blue whales (60-180d) (3)",
+                                             "Humpback whales (60-180d) (3)",
+                                             "Antarctic fin whales (60-180d) (3)",
+                                             "Antarctic minke whales (60-180d) (3)",
+                                             "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
+                                             "Crabeater, Weddell, Ross and leopard seals (365d) (this study)"))) |>
+  ggplot2::ggplot() +
+  ggplot2::geom_bar(ggplot2::aes(x = Releaser, y = `Mean estimate`, fill = Releaser),
+                    stat = "identity",
+                    #fill = "skyblue",
+                    alpha = 0.7) +
+  ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`),
+                      color = "gray40", size = 2) +
+  ggplot2::geom_errorbar(ggplot2::aes(x = Releaser, ymin = first_quant, ymax = last_quant),
+                         color = "gray40",
+                         width = .5, size = 1) +
+  ggplot2::scale_fill_manual(values = wesanderson::wes_palette("FantasticFox1",
+                                                                9, # nb of areas
+                                                                type = "continuous")) +
+  ggplot2::ylim(c(0, 1250)) +
+  ggplot2::xlab(" ") +
+  ggplot2::ylab("Fe released (in t/yr)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "none",
+                 axis.title.y = ggplot2::element_text(face = "bold", size = 17),
+                 axis.text.y = ggplot2::element_text(face = "bold", size = 15),
+                 axis.text.x = ggplot2::element_text(face = "bold", size = 15, angle = 45, hjust = 1))
+
+
 
 
 ##### output$

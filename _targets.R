@@ -71,10 +71,16 @@ list(
   tar_target(fig_sp_Fe_file, fig_sp_Fe_released(model_output,
                                                 "file",
                                                 "fig_sp_Fe")),
+  tar_target(table3_output, table_Fe_release_sp(model_output,
+                                                "output",
+                                                "Table3")),
+  tar_target(table3_file, table_Fe_release_sp(model_output,
+                                              "file",
+                                              "Table3")),
   tar_target(supp_mat1_output, supp_table_param(model_output,
                                                 "output",
-                                                "supp_mat2")),
+                                                "supp_mat1")),
   tar_target(supp_mat1_file, supp_table_param(model_output,
                                               "file",
-                                              "supp_mat2"))
+                                              "supp_mat1"))
 )

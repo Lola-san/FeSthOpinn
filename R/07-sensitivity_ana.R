@@ -142,6 +142,7 @@ fig_sensitivy_indices <- function(sensi_tib,
   figure <- sensi_tib |>
     ggplot2::ggplot() +
     ggplot2::geom_boxplot(ggplot2::aes(x = Input, y = original, fill = Sensitivity)) +
+    ggplot2::scale_fill_manual(values = c("#278B9AFF", "#E75B64FF")) +
     ggplot2::ylab("Sobol sensivity indice") +
     ggplot2::xlab("Model parameter") +
     ggplot2::theme_bw() +
