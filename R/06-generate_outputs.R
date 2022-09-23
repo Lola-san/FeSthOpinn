@@ -80,7 +80,7 @@ fig_tot_Fe_released <- function(output_tib,
     ggplot2::geom_errorbar(ggplot2::aes(x = Param, ymin = `2.5_quant`, ymax = `97.5_quant`),
                            color = "gray40",
                            size = 1,
-                           width = 0.5) +
+                           width = 0) +
     ggplot2::geom_point(ggplot2::aes(x = Param, y = mean),
                         color = "gray40",
                         size = 2) +
@@ -154,7 +154,6 @@ fig_tot_Fe_released_comp <- function(output_tib,
                                               max = max(value)))$`97.5_quant`
 
   tib_summary <- tibble::tibble(Releaser = c("Sperm whales (365d) (1)",
-                                             "Chinstrap, Adelie and Gentoo penguins (165d) (4)",
                                              "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
                                              "Antarctic blue whales (365d) (2)",
                                              "Leopard, crabeater, Weddell and Ross seals (365d) (this study)",
@@ -162,9 +161,9 @@ fig_tot_Fe_released_comp <- function(output_tib,
                                              "Humpback whales (60-180d) (3)",
                                              "Antarctic fin whales (60-180d) (3)",
                                              "Antarctic minke whales (60-180d) (3)"),
-                                "Mean estimate" = c(50, 56, 169, 65, mean_this_study, 15, 221, 367, 630),
-                                first_quant = c(NA, NA, NA, NA, firstquant_this_study, 9, 144, 193, 420),
-                                last_quant = c(NA, NA, NA, NA, lastquant_this_study, 24, 394, 590, 937))
+                                "Mean estimate" = c(50, 169, 65, mean_this_study, 15, 221, 367, 630),
+                                first_quant = c(NA, NA, NA, firstquant_this_study, 9, 144, 193, 420),
+                                last_quant = c(NA, NA, NA, lastquant_this_study, 24, 394, 590, 937))
 
   figure <- tib_summary|>
     dplyr::mutate(Releaser = factor(Releaser,
@@ -174,22 +173,22 @@ fig_tot_Fe_released_comp <- function(output_tib,
                                                "Humpback whales (60-180d) (3)",
                                                "Antarctic fin whales (60-180d) (3)",
                                                "Antarctic minke whales (60-180d) (3)",
-                                               "Chinstrap, Adelie and Gentoo penguins (165d) (4)",
                                                "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
                                                "Leopard, crabeater, Weddell and Ross seals (365d) (this study)"))) |>
     ggplot2::ggplot() +
     ggplot2::geom_bar(ggplot2::aes(x = Releaser, y = `Mean estimate`,
                       fill = Releaser),
                       stat = "identity", alpha = 0.7) +
-    ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`, size = 2),
+    ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`,
+                                     size = 2),
                         color = "gray40") +
     ggplot2::geom_errorbar(ggplot2::aes(x = Releaser, ymin = first_quant, ymax = last_quant),
                            color = "gray40",
-                           width = .5, size = 1) +
+                           width = 0, size = 1) +
     ggplot2::scale_fill_manual(values = wesanderson::wes_palette("FantasticFox1",
-                                                                  9, # nb of areas
+                                                                  8, # nb of areas
                                                                   type = "continuous")) +
-    ggplot2::ylim(c(0, 1250)) +
+    ggplot2::ylim(c(0, 1000)) +
     ggplot2::xlab(" ") +
     ggplot2::ylab("Fe released (in t/yr)") +
     ggplot2::theme_bw() +
@@ -246,11 +245,11 @@ fig_sp_Fe_released <- function(output_tib,
                       stat = "identity", alpha = 0.7) +
     ggplot2::geom_point(ggplot2::aes(x = Species_eng, y = mean),
                         color = "gray40",
-                        size = 1) +
+                        size = 2) +
     ggplot2::geom_errorbar(ggplot2::aes(x = Species_eng, ymin = `2.5_quant`,
                                         ymax = `97.5_quant`),
                            color = "gray40",
-                           width = .5, size = .5) +
+                           width = 0, size = 1) +
     ggplot2::scale_fill_manual(values = wesanderson::wes_palette("Zissou1",
                                                                   4, # nb of areas
                                                                   type = "continuous")) +
