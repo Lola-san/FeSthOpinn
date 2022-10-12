@@ -140,13 +140,24 @@ fig_sensitivy_indices <- function(sensi_tib,
                                   object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
                                   name_file) {
   figure <- sensi_tib |>
+    dplyr::mutate(Input = dplyr::case_when(Input == "Abundance" ~ "Abun-dance",
+                                           Input == "Mean NRJ content of diet" ~ "Mean energy content of diet",
+                                           Input == "Assimilation rate" ~ "Assimi-lation rate",
+                                           TRUE ~ Input)) |>
+    dplyr::mutate(Input = factor(Input,
+                                 levels = c("Body mass", "Beta",
+                                            "Mean energy content of diet", "Mean Fe content of diet",
+                                            "Assimi-lation rate", "Fe release rate",
+                                            "Abun-dance"))) |>
     ggplot2::ggplot() +
     ggplot2::geom_boxplot(ggplot2::aes(x = Input, y = original, fill = Sensitivity), color = "gray40") +
-    ggplot2::scale_fill_manual(values = c("#278B9AFF", "#E75B64FF")) +
+    ggplot2::scale_fill_manual(values = c("#278B9AFF", "#E75B64FF"),
+                               labels = function(x) stringr::str_wrap(x, width = 7)) +
+    ggplot2::scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 6)) +
     ggplot2::ylab("Sobol sensivity indice") +
     ggplot2::xlab("Model parameter") +
     ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 20, hjust = 1, size = 12),
+    ggplot2::theme(axis.text.x = ggplot2::element_text(size = 12),
                    axis.title.x = ggplot2::element_text(face = "bold", size = 14),
                    axis.text.y = ggplot2::element_text(size = 12),
                    axis.title.y = ggplot2::element_text(face = "bold", size = 14),

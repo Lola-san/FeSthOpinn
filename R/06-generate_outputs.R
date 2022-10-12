@@ -188,6 +188,7 @@ fig_tot_Fe_released_comp <- function(output_tib,
     ggplot2::scale_fill_manual(values = wesanderson::wes_palette("FantasticFox1",
                                                                   8, # nb of areas
                                                                   type = "continuous")) +
+    ggplot2::scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 10)) +
     ggplot2::ylim(c(0, 1000)) +
     ggplot2::xlab(" ") +
     ggplot2::ylab("Fe released (in t/yr)") +
@@ -195,7 +196,9 @@ fig_tot_Fe_released_comp <- function(output_tib,
     ggplot2::theme(legend.position = "none",
                    axis.title.y = ggplot2::element_text(face = "bold", size = 17),
                    axis.text.y = ggplot2::element_text(face = "bold", size = 15),
-                   axis.text.x = ggplot2::element_text(face = "bold", size = 15, angle = 45, hjust = 1))
+                   axis.text.x = ggplot2::element_text(face = "bold", size = 15,
+                                                       #angle = 45, hjust = 1
+                                                       ))
 
   if (object_type == "file") {
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
@@ -261,12 +264,14 @@ fig_sp_Fe_released <- function(output_tib,
                    axis.title.y = ggplot2::element_text(face = "bold", size = 14),
                    axis.title.x = ggplot2::element_text(face = "bold", size = 14),
                    axis.text.y = ggplot2::element_text(face = "bold", size = 12),
-                   axis.text.x = ggplot2::element_text(face = "italic", angle = 20, hjust = 1, size = 12))
+                   axis.text.x = ggplot2::element_text(face = "bold",
+                                                       #angle = 20, hjust = 1,
+                                                       size = 12))
 
   if (object_type == "file") {
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
                     width = 7,
-                    height = 5)
+                    height = 4)
   } else {
     figure
   }
@@ -280,7 +285,9 @@ fig_sp_Fe_released <- function(output_tib,
 #'
 #'
 #'
-#' function to generate supplementary material table with all parameters summary values
+#' function to generate table with species - specific population iron release statistics
+#' used in Table 3 of the article together with individual iron consumption and release
+#' parameters provided in Supp table 1
 table_Fe_release_sp <- function(output_tib,
                              object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
                              name_file) {
