@@ -49,10 +49,10 @@ list(
   # generate outputs
   tar_target(table_output_per_sp_output, table_Fe_release_sp(model_output,
                                                              "output",
-                                                             "supp_mat1")),
+                                                             "Table_sp")),
   tar_target(table_output_per_sp_file, table_Fe_release_sp(model_output,
                                                            "file",
-                                                           "supp_mat1")),
+                                                           "Table_sp")),
   tar_target(fig_tot_Fe_output, fig_tot_Fe_released(model_output,
                                                     "output",
                                                     "fig_tot_Fe")),
@@ -71,16 +71,18 @@ list(
   tar_target(fig_sp_Fe_file, fig_sp_Fe_released(model_output,
                                                 "file",
                                                 "fig_sp_Fe")),
-  tar_target(table3_output, table_Fe_release_sp(model_output,
-                                                "output",
-                                                "Table3")),
-  tar_target(table3_file, table_Fe_release_sp(model_output,
-                                              "file",
-                                              "Table3")),
   tar_target(supp_mat1_output, supp_table_param(model_output,
                                                 "output",
                                                 "supp_mat1")),
   tar_target(supp_mat1_file, supp_table_param(model_output,
                                               "file",
-                                              "supp_mat1"))
+                                              "supp_mat1")),
+  ## test significance of difference
+  # daily individual Fe release
+  tar_target(tib_test_diff_ind_output, test_diff_ind(model_output)),
+  # population Fe release
+  tar_target(tib_test_diff_pop_output, test_diff_pop(model_output)),
+  # plot figure with populational levels with this info
+  tar_target(fig_sp_Fe_with_diff_file, fig_sp_Fe_with_diff(model_output,
+                                                      "fig_sp_Fe_with_diff"))
 )

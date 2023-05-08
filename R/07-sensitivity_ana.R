@@ -167,6 +167,10 @@ fig_sensitivy_indices <- function(sensi_tib,
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
                     width = 8,
                     height = 5)
+    ggplot2::ggsave(paste0("output/", name_file, ".eps"),
+                    width = 8,
+                    height = 5,
+                    dpi = 300)
   } else {
     figure
   }

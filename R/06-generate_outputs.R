@@ -6,7 +6,7 @@
 ## Last update : 2022-09
 ## R version 4.1.2 (2021-11-01) -- "Bird Hippie"
 ##--------------------------------------------------------------------------------------------------------
-# script with function to run the model
+
 
 # This script should contain FUNCTIONS ONLY
 
@@ -117,7 +117,8 @@ fig_tot_Fe_released <- function(output_tib,
 #'
 #'
 #'
-#' function to generate figure displaying total amount of Fe released by the 4 species of pack-ice seals
+# function to generate figure displaying total amount of Fe released by
+# the 4 species of pack-ice seals
 fig_tot_Fe_released_comp <- function(output_tib,
                                      object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
                                      name_file) {
@@ -204,12 +205,85 @@ fig_tot_Fe_released_comp <- function(output_tib,
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
                     width = 13,
                     height = 8)
+    ggplot2::ggsave(paste0("output/", name_file, ".eps"),
+                    width = 13,
+                    height = 8,
+                    dpi = 300
+                    )
   } else {
     figure
   }
 
 }
 
+#'
+#'
+#'
+#'
+#'
+# function to generate figure displaying total amount of Fe released by
+# the 4 species of pack-ice seals with significance of diff
+fig_sp_Fe_with_diff <- function(output_tib,
+                                name_file) {
+
+  options(scipen = 999)
+
+  output_tib |>
+    dplyr::group_by(Species) |>
+    tidyr::unnest(excrete_Fe) |>
+    dplyr::rename(excrete_Fe = value) |>
+    dplyr::summarize(min = min(excrete_Fe),
+                     `2.5_quant` = quantile(excrete_Fe, probs = c(0.025)),
+                     mean = mean(excrete_Fe),
+                     median = median(excrete_Fe),
+                     `97.5_quant` = quantile(excrete_Fe, probs = c(0.975)),
+                     max = max(excrete_Fe)) |>
+    dplyr::mutate(Species_eng = dplyr::case_when(Species == "Hydrurga leptonyx" ~ "Leopard seals",
+                                                 Species == "Lobodon carcinophaga" ~ "Crabeater seals",
+                                                 Species == "Ommatophoca rossii" ~ "Ross seals",
+                                                 Species == "Leptonychotes weddellii" ~ "Weddell seals"),
+                  Species_eng = factor(Species_eng,
+                                       levels = c("Leopard seals", "Crabeater seals",
+                                                  "Weddell seals", "Ross seals"))) |>
+    ggplot2::ggplot() +
+    ggplot2::geom_bar(ggplot2::aes(x = Species_eng, y = mean,
+                                   fill = Species_eng),
+                      stat = "identity", alpha = 0.7) +
+    ggplot2::geom_point(ggplot2::aes(x = Species_eng, y = mean),
+                        color = "gray40",
+                        size = 2) +
+    ggplot2::geom_errorbar(ggplot2::aes(x = Species_eng, ymin = `2.5_quant`,
+                                        ymax = `97.5_quant`),
+                           color = "gray40",
+                           width = 0, size = 1) +
+    ggplot2::scale_fill_manual(values = wesanderson::wes_palette("Zissou1",
+                                                                 4, # nb of areas
+                                                                 type = "continuous")) +
+    ggplot2::geom_text(label = c("a", "c", "b", "a"),
+                       ggplot2::aes(y = `97.5_quant` + 20, x = Species_eng),
+                       size = 4) +
+    ggplot2::ylim(c(0, 350)) +
+    ggplot2::xlab("Species") +
+    ggplot2::ylab("Fe released (in t/yr)") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(legend.position = "none",
+                   axis.title.y = ggplot2::element_text(face = "bold", size = 14),
+                   axis.title.x = ggplot2::element_text(face = "bold", size = 14),
+                   axis.text.y = ggplot2::element_text(face = "bold", size = 12),
+                   axis.text.x = ggplot2::element_text(face = "bold",
+                                                       #angle = 20, hjust = 1,
+                                                       size = 12))
+
+  ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
+                    width = 7,
+                    height = 4)
+    ggplot2::ggsave(paste0("output/", name_file, ".eps"),
+                    width = 7,
+                    height = 4,
+                    dpi = 300)
+
+
+}
 
 
 
@@ -218,7 +292,8 @@ fig_tot_Fe_released_comp <- function(output_tib,
 #'
 #'
 #'
-#' function to generate figure displaying total amount of Fe released by the 4 species of pack-ice seals
+#' function to generate figure displaying total amount of Fe released by the
+#' 4 species of pack-ice seals
 fig_sp_Fe_released <- function(output_tib,
                                object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
                                name_file) {
@@ -272,6 +347,10 @@ fig_sp_Fe_released <- function(output_tib,
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
                     width = 7,
                     height = 4)
+    ggplot2::ggsave(paste0("output/", name_file, ".eps"),
+                    width = 7,
+                    height = 4,
+                    dpi = 300)
   } else {
     figure
   }
