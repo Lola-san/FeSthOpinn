@@ -171,6 +171,11 @@ fig_sensitivy_indices <- function(sensi_tib,
                     width = 8,
                     height = 5,
                     dpi = 300)
+    ggplot2::ggsave(paste0("output/", name_file, ".tiff"),
+                    width = 8,
+                    height = 5,
+                    dpi = 300,
+                    device='tiff')
   } else {
     figure
   }

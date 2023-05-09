@@ -210,6 +210,11 @@ fig_tot_Fe_released_comp <- function(output_tib,
                     height = 8,
                     dpi = 300
                     )
+    ggplot2::ggsave(paste0("output/", name_file, ".tiff"),
+                    width = 13,
+                    height = 8,
+                    dpi = 300,
+                    device='tiff')
   } else {
     figure
   }
@@ -281,6 +286,11 @@ fig_sp_Fe_with_diff <- function(output_tib,
                     width = 7,
                     height = 4,
                     dpi = 300)
+    ggplot2::ggsave(paste0("output/", name_file, ".tiff"),
+                    width = 7,
+                    height = 4,
+                    dpi = 300,
+                    device='tiff')
 
 
 }
