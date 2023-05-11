@@ -178,7 +178,7 @@ fig_tot_Fe_released_comp <- function(output_tib,
                                                "Leopard, crabeater, Weddell and Ross seals (365d) (this study)"))) |>
     ggplot2::ggplot() +
     ggplot2::geom_bar(ggplot2::aes(x = Releaser, y = `Mean estimate`,
-                      fill = Releaser),
+                                   fill = Releaser),
                       stat = "identity", alpha = 0.7) +
     ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`,
                                      size = 2),
@@ -187,8 +187,8 @@ fig_tot_Fe_released_comp <- function(output_tib,
                            color = "gray40",
                            width = 0, size = 1) +
     ggplot2::scale_fill_manual(values = wesanderson::wes_palette("FantasticFox1",
-                                                                  8, # nb of areas
-                                                                  type = "continuous")) +
+                                                                 8, # nb of areas
+                                                                 type = "continuous")) +
     ggplot2::scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 10)) +
     ggplot2::ylim(c(0, 1000)) +
     ggplot2::xlab(" ") +
@@ -199,7 +199,7 @@ fig_tot_Fe_released_comp <- function(output_tib,
                    axis.text.y = ggplot2::element_text(face = "bold", size = 15),
                    axis.text.x = ggplot2::element_text(face = "bold", size = 15,
                                                        #angle = 45, hjust = 1
-                                                       ))
+                   ))
 
   if (object_type == "file") {
     ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
@@ -209,7 +209,7 @@ fig_tot_Fe_released_comp <- function(output_tib,
                     width = 13,
                     height = 8,
                     dpi = 300
-                    )
+    )
     ggplot2::ggsave(paste0("output/", name_file, ".tiff"),
                     width = 13,
                     height = 8,
@@ -280,17 +280,17 @@ fig_sp_Fe_with_diff <- function(output_tib,
                                                        size = 12))
 
   ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
-                    width = 7,
-                    height = 4)
-    ggplot2::ggsave(paste0("output/", name_file, ".eps"),
-                    width = 7,
-                    height = 4,
-                    dpi = 300)
-    ggplot2::ggsave(paste0("output/", name_file, ".tiff"),
-                    width = 7,
-                    height = 4,
-                    dpi = 300,
-                    device='tiff')
+                  width = 7,
+                  height = 4)
+  ggplot2::ggsave(paste0("output/", name_file, ".eps"),
+                  width = 7,
+                  height = 4,
+                  dpi = 300)
+  ggplot2::ggsave(paste0("output/", name_file, ".tiff"),
+                  width = 7,
+                  height = 4,
+                  dpi = 300,
+                  device='tiff')
 
 
 }
@@ -329,7 +329,7 @@ fig_sp_Fe_released <- function(output_tib,
                                                   "Weddell seals", "Ross seals"))) |>
     ggplot2::ggplot() +
     ggplot2::geom_bar(ggplot2::aes(x = Species_eng, y = mean,
-                      fill = Species_eng),
+                                   fill = Species_eng),
                       stat = "identity", alpha = 0.7) +
     ggplot2::geom_point(ggplot2::aes(x = Species_eng, y = mean),
                         color = "gray40",
@@ -339,8 +339,8 @@ fig_sp_Fe_released <- function(output_tib,
                            color = "gray40",
                            width = 0, size = 1) +
     ggplot2::scale_fill_manual(values = wesanderson::wes_palette("Zissou1",
-                                                                  4, # nb of areas
-                                                                  type = "continuous")) +
+                                                                 4, # nb of areas
+                                                                 type = "continuous")) +
     ggplot2::ylim(c(0, 350)) +
     ggplot2::xlab("Species") +
     ggplot2::ylab("Fe released (in t/yr)") +
@@ -378,8 +378,8 @@ fig_sp_Fe_released <- function(output_tib,
 #' used in Table 3 of the article together with individual iron consumption and release
 #' parameters provided in Supp table 1
 table_Fe_release_sp <- function(output_tib,
-                             object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
-                             name_file) {
+                                object_type, # either "file" if need to be generated in the output folder, or "output" for use in Rmd
+                                name_file) {
 
   options(scipen = 999)
 
@@ -522,6 +522,97 @@ supp_table_param <- function(output_tib,
   } else {
     table
   }
+
+}
+
+
+#'
+#'
+#'
+#'
+#'
+# function to generate supplementary table with data from other studies
+# on total yearly Fe release by other megafauna taxa
+supp_table_comp <- function(output_tib,
+                            name_file) {
+
+  options(scipen = 999)
+
+  summary_this_study <- output_tib |>
+    dplyr::group_by(Species) |>
+    dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+    tidyr::unnest(tot_Fe) |>
+    dplyr::group_by(Species) |>
+    dplyr::summarize(min = min(value),
+                     `2.5_quant` = quantile(value, probs = c(0.025)),
+                     mean = mean(value),
+                     median = median(value),
+                     `97.5_quant` = quantile(value, probs = c(0.975)),
+                     max = max(value))
+
+  means_this_study <- round(summary_this_study$mean, 1)
+
+  firstquant_this_study <- round(summary_this_study$`2.5_quant`, 1)
+  lastquant_this_study <- round(summary_this_study$`97.5_quant`, 1)
+
+  CI_this_study <- c(paste(firstquant_this_study[1],
+                           lastquant_this_study[1],
+                           sep = " - "),
+                     paste(firstquant_this_study[2],
+                           lastquant_this_study[2],
+                           sep = " - "),
+                     paste(firstquant_this_study[3],
+                           lastquant_this_study[3],
+                           sep = " - "),
+                     paste(firstquant_this_study[4],
+                           lastquant_this_study[4],
+                           sep = " - "))
+
+  tib_summary <- tibble::tibble(Species = c("Sperm whales",
+                                            "Antarctic blue whales",
+                                            "Antarctic blue whales",
+                                            "Humpback whales",
+                                            "Antarctic fin whales",
+                                            "Antarctic minke whales",
+                                            "Chinstrap, Adelie and Gentoo penguins",
+                                            "Leopard seals",
+                                            "Weddell seals",
+                                            "Crabeater seals",
+                                            "Ross seals"),
+                                "Nb of days of presence considered in the study" = c("365",
+                                                                                     "365",
+                                                                                     "60-180",
+                                                                                     "60-180",
+                                                                                     "60-180",
+                                                                                     "60-180",
+                                                                                     "365",
+                                                                                     "365",
+                                                                                     "365",
+                                                                                     "365",
+                                                                                     "365"),
+                                "Mean Fe yearly release (t/yr)" = c(50, 65, 15, 221, 367, 630, 169, means_this_study),
+                                "Confidence interval" = c(NA, NA,
+                                                          "9-24", "144-394", "193-590", "420-937",
+                                                          NA, CI_this_study
+                                                          ),
+                                Reference = c("Lavery et al. 2010",
+                                              "Lavery et al. 2014",
+                                              "Savoca et al. 2021",
+                                              "Savoca et al. 2021",
+                                              "Savoca et al. 2021",
+                                              "Savoca et al. 2021",
+                                              "deduced from Sparaventi et al. 2021",
+                                              "this study",
+                                              "this study",
+                                              "this study",
+                                              "this study"
+                                )
+  )
+
+
+
+  openxlsx::write.xlsx(tib_summary,
+                       file =paste0("output/", name_file, ".xlsx"))
 
 }
 
