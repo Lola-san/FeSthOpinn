@@ -84,9 +84,14 @@ list(
   tar_target(tib_test_diff_pop_output, test_diff_pop(model_output)),
   # plot figure with populational levels with this info
   tar_target(fig_sp_Fe_with_diff_file, fig_sp_Fe_with_diff(model_output,
-                                                      "fig_sp_Fe_with_diff")),
+                                                           "fig_sp_Fe_with_diff")),
   # supplementary table 2 with results for other species
   tar_target(supp_table2_comp, supp_table_comp(model_output,
-                                                           "supp_mat2"))
+                                               "supp_mat2")),
+  # plot figure with comparison with other taxa but with our results
+  # emphasized
+  tar_target(fig_tot_Fe_comp_alpha, fig_tot_Fe_released_comp_alpha(model_output,
+                                                                   alpha = 0.3,
+                                                                   "fig_tot_Fe_comp_alpha"))
 
 )

@@ -221,6 +221,135 @@ fig_tot_Fe_released_comp <- function(output_tib,
 
 }
 
+
+
+#'
+#'
+#'
+#'
+#'
+# function to generate figure displaying total amount of Fe released by
+# the 4 species of pack-ice seals with results from this study emphasized
+# from the intensity of its color
+fig_tot_Fe_released_comp_alpha <- function(output_tib,
+                                           alpha, # transparency for results
+                                           # from other studies, range
+                                           # 0 (transparent) to 1 (normal)
+                                           name_file) {
+
+  options(scipen = 999)
+
+  mean_this_study <- (output_tib |>
+                        dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                        tidyr::unnest(tot_Fe) |>
+                        dplyr::summarize(min = min(value),
+                                         `2.5_quant` = quantile(value, probs = c(0.025)),
+                                         mean = mean(value),
+                                         median = median(value),
+                                         `97.5_quant` = quantile(value, probs = c(0.975)),
+                                         max = max(value)))$mean
+
+  firstquant_this_study <- (output_tib |>
+                              dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                              tidyr::unnest(tot_Fe) |>
+                              dplyr::summarize(min = min(value),
+                                               `2.5_quant` = quantile(value, probs = c(0.025)),
+                                               mean = mean(value),
+                                               median = median(value),
+                                               `97.5_quant` = quantile(value, probs = c(0.975)),
+                                               max = max(value)))$`2.5_quant`
+  lastquant_this_study <- (output_tib |>
+                             dplyr::summarise(tot_Fe = list(sum_vec(excrete_Fe))) |>
+                             tidyr::unnest(tot_Fe) |>
+                             dplyr::summarize(min = min(value),
+                                              `2.5_quant` = quantile(value, probs = c(0.025)),
+                                              mean = mean(value),
+                                              median = median(value),
+                                              `97.5_quant` = quantile(value, probs = c(0.975)),
+                                              max = max(value)))$`97.5_quant`
+
+  tib_summary <- tibble::tibble(Releaser = c("Sperm whales (365d) (1)",
+                                             "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
+                                             "Antarctic blue whales (365d) (2)",
+                                             "Leopard, crabeater, Weddell and Ross seals (365d) (this study)",
+                                             "Antarctic blue whales (60-180d) (3)",
+                                             "Humpback whales (60-180d) (3)",
+                                             "Antarctic fin whales (60-180d) (3)",
+                                             "Antarctic minke whales (60-180d) (3)"),
+                                "Mean estimate" = c(50, 169, 65, mean_this_study, 15, 221, 367, 630),
+                                first_quant = c(NA, NA, NA, firstquant_this_study, 9, 144, 193, 420),
+                                last_quant = c(NA, NA, NA, lastquant_this_study, 24, 394, 590, 937),
+                                alpha_set = c(alpha, alpha, alpha,
+                                              1,
+                                              alpha, alpha, alpha, alpha))
+
+  figure <- tib_summary|>
+    dplyr::mutate(Releaser = factor(Releaser,
+                                    levels = c("Sperm whales (365d) (1)",
+                                               "Antarctic blue whales (365d) (2)",
+                                               "Antarctic blue whales (60-180d) (3)",
+                                               "Humpback whales (60-180d) (3)",
+                                               "Antarctic fin whales (60-180d) (3)",
+                                               "Antarctic minke whales (60-180d) (3)",
+                                               "Chinstrap, Adelie and Gentoo penguins (365d) (deduced from (4))",
+                                               "Leopard, crabeater, Weddell and Ross seals (365d) (this study)"))) |>
+    ggplot2::ggplot() +
+    ggplot2::geom_bar(ggplot2::aes(x = Releaser, y = `Mean estimate`,
+                                   fill = Releaser,
+                                   alpha = alpha_set),
+                      stat = "identity") +
+    ggplot2::geom_point(ggplot2::aes(x = Releaser, y = `Mean estimate`,
+                                     size = 2,
+                                     #alpha = alpha_set
+                                     ),
+                        color = "gray40") +
+    ggplot2::geom_errorbar(ggplot2::aes(x = Releaser,
+                                        ymin = first_quant,
+                                        ymax = last_quant,
+                                        #alpha = alpha_set
+                                        ),
+                           color = "gray40",
+                           width = 0, size = 1) +
+    ggplot2::scale_alpha_identity() +
+    ggplot2::scale_fill_manual(values = c("#1D2645FF", "#B4DAE5FF",
+                                          "#DE7862FF", "#5A6F80FF",
+                                          "#D8AF39FF", "#278B9AFF",
+                                          "#AE93BEFF", "#E75B64FF")) +
+    ggplot2::scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 10)) +
+    ggplot2::ylim(c(0, 1000)) +
+    ggplot2::xlab(" ") +
+    ggplot2::ylab("Fe released (in t/yr)") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(legend.position = "none",
+                   axis.title.y = ggplot2::element_text(face = "bold", size = 17),
+                   axis.text.y = ggplot2::element_text(face = "bold", size = 15),
+                   axis.text.x = ggplot2::element_text(face = "bold", size = 15,
+                                                       #angle = 45, hjust = 1
+                   ))
+
+
+  ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
+                  width = 13,
+                  height = 8)
+  ggplot2::ggsave(paste0("output/", name_file, ".eps"),
+                  width = 13,
+                  height = 8,
+                  dpi = 300
+  )
+  ggplot2::ggsave(paste0("output/", name_file, ".tiff"),
+                  width = 13,
+                  height = 8,
+                  dpi = 300,
+                  device='tiff')
+
+
+}
+
+
+
+
+
+
 #'
 #'
 #'
@@ -594,7 +723,7 @@ supp_table_comp <- function(output_tib,
                                 "Confidence interval" = c(NA, NA,
                                                           "9-24", "144-394", "193-590", "420-937",
                                                           NA, CI_this_study
-                                                          ),
+                                ),
                                 Reference = c("Lavery et al. 2010",
                                               "Lavery et al. 2014",
                                               "Savoca et al. 2021",
