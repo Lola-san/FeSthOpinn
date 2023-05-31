@@ -42,3 +42,28 @@ create_diet_tib <- function() {
     tidyr::nest(Diet = c(Fish:`Penguins (muscle)`))
 
 }
+
+
+
+#### AFTER REVISION, change for the diet of leopard seals
+#'
+#'
+#'
+#'
+#'
+#'
+#'
+create_diet_tib_after_review <- function() {
+
+  tibble::tribble(~ Species, ~ Fish, ~ Cephalopod, ~ "Krill & other zooplankton", ~ "Pinniped (muscle)", ~ "Penguins (muscle)", ~ Sources,
+                  "Hydrurga leptonyx", 0.42, 0.1, 0.3, 0.21, 0.06, "McCormack et al 2020, Green & Williams 1986, Walker et al 1998, Zhao et al 2004,
+  #                           Hall-Aspland et al 2004, Hall-Aspland et al 2005, Kuhn et al 2006, Forcada et al 2009, Casaux et al 2009,
+  #                           Southwell et al 2012",
+                  "Lobodon carcinophaga", 0.005, 0.01, 0.985, 0, 0, "McCormack et al 2020",
+                  "Ommatophoca rossii", 0.30, 0.35, 0.35, 0, 0, "McCormack et al 2020",
+                  "Leptonychotes weddellii", 0.90, 0.08, 0.02, 0, 0, "McCormack et al 2020, Casaux et al 1997, Lake et al 2003, Zhao et al 2004,
+  #                           Casaux et al 2006,  Southwell et al 2012, Negri et al 2016, Goetz et al 2017, Hückstädt et al 2017,
+  #                           Brault et al 2019") |>
+    tidyr::nest(Diet = c(Fish:`Penguins (muscle)`))
+
+}
