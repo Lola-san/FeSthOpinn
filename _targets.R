@@ -112,7 +112,7 @@ list(
              test_diff_pop(model_output_aft_review)),
   # plot figure with populational levels with this info
   tar_target(fig_sp_Fe_with_diff_file, fig_sp_Fe_with_diff(model_output,
-                                                           "fig_sp_Fe_with_diff")),
+                                                           "fig_sp_Fe_with_diff_2-levels")),
   # supplementary table 2 with results for other species
   tar_target(supp_table2_comp, supp_table_comp(model_output,
                                                "supp_mat2")),

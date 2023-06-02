@@ -348,15 +348,13 @@ fig_tot_Fe_released_comp_alpha <- function(output_tib,
 
 
 
-
-
 #'
 #'
 #'
 #'
 #'
-# function to generate figure displaying total amount of Fe released by
-# the 4 species of pack-ice seals with significance of diff
+# function to generate figure displaying daily and yearly amount of Fe
+# released by the 4 species of pack-ice seals with significance of diff
 fig_sp_Fe_with_diff <- function(output_tib,
                                 name_file) {
 
@@ -364,21 +362,42 @@ fig_sp_Fe_with_diff <- function(output_tib,
 
   output_tib |>
     dplyr::group_by(Species) |>
-    tidyr::unnest(excrete_Fe) |>
-    dplyr::rename(excrete_Fe = value) |>
-    dplyr::summarize(min = min(excrete_Fe),
-                     `2.5_quant` = quantile(excrete_Fe, probs = c(0.025)),
-                     mean = mean(excrete_Fe),
-                     median = median(excrete_Fe),
-                     `97.5_quant` = quantile(excrete_Fe, probs = c(0.975)),
-                     max = max(excrete_Fe)) |>
+    tidyr::unnest(excrete_Fe_ind) |>
+    dplyr::summarize(min = min(value),
+                     `2.5_quant` = quantile(value, probs = c(0.025)),
+                     mean = mean(value),
+                     median = median(value),
+                     `97.5_quant` = quantile(value, probs = c(0.975)),
+                     max = max(value)) |>
+    dplyr::mutate(Parameter = "Individual daily amount of Fe released (mg)")
+
+  output_tib |>
+    dplyr::group_by(Species) |>
+    tidyr::unnest(excrete_Fe, excrete_Fe_ind) |>
+    dplyr::rename(annual_Fe_release = value1,
+                  daily_Fe_release = value) |>
+    tidyr::pivot_longer(cols = c(annual_Fe_release,
+                                 daily_Fe_release),
+                        names_to = "level",
+                        values_to = "estimate") |>
+    dplyr::group_by(Species, level) |>
+    dplyr::summarize(min = min(estimate),
+                     `2.5_quant` = quantile(estimate, probs = c(0.025)),
+                     mean = mean(estimate),
+                     median = median(estimate),
+                     `97.5_quant` = quantile(estimate, probs = c(0.975)),
+                     max = max(estimate)) |>
     dplyr::mutate(Species_eng = dplyr::case_when(Species == "Hydrurga leptonyx" ~ "Leopard seals",
                                                  Species == "Lobodon carcinophaga" ~ "Crabeater seals",
                                                  Species == "Ommatophoca rossii" ~ "Ross seals",
                                                  Species == "Leptonychotes weddellii" ~ "Weddell seals"),
                   Species_eng = factor(Species_eng,
                                        levels = c("Leopard seals", "Crabeater seals",
-                                                  "Weddell seals", "Ross seals"))) |>
+                                                  "Weddell seals", "Ross seals")),
+                  level = factor(level,
+                                 levels = c("daily_Fe_release", "annual_Fe_release")),
+                  level = dplyr::case_when(level == "annual_Fe_release" ~ "Population annual level (t/yr)",
+                                           level == "daily_Fe_release" ~ "Individual daily level (mg/day)")) |>
     ggplot2::ggplot() +
     ggplot2::geom_bar(ggplot2::aes(x = Species_eng, y = mean,
                                    fill = Species_eng),
@@ -391,32 +410,41 @@ fig_sp_Fe_with_diff <- function(output_tib,
                            color = "gray40",
                            width = 0, size = 1) +
     ggplot2::scale_fill_manual(values = wesanderson::wes_palette("Zissou1",
-                                                                 4, # nb of areas
+                                                                 4, # nb of species
                                                                  type = "continuous")) +
-    ggplot2::geom_text(label = c("a", "c", "b", "a"),
-                       ggplot2::aes(y = `97.5_quant` + 20, x = Species_eng),
-                       size = 4) +
-    ggplot2::ylim(c(0, 350)) +
-    ggplot2::xlab("Species") +
-    ggplot2::ylab("Fe released (in t/yr)") +
+    ggplot2::geom_text(label = c("a", "a", # leopard seal
+                                 "c", "c", # Weddell seal
+                                 "b", "b", # crabeater seal
+                                 "a", "bc"  # Ross seal
+                                 ),
+                        ggplot2::aes(y = dplyr::case_when(level == "Population annual level (t/yr)" ~ `97.5_quant` + 20,
+                                                          level == "Individual daily level (mg/day)" ~ `97.5_quant` + 50),
+                                     x = Species_eng),
+                        size = 3) +
+    ggplot2::facet_wrap(~ level, scales = "free") +
+    ggplot2::ylab("Fe release") +
     ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none",
-                   axis.title.y = ggplot2::element_text(face = "bold", size = 14),
-                   axis.title.x = ggplot2::element_text(face = "bold", size = 14),
-                   axis.text.y = ggplot2::element_text(face = "bold", size = 12),
-                   axis.text.x = ggplot2::element_text(face = "bold",
-                                                       #angle = 20, hjust = 1,
-                                                       size = 12))
+    ggplot2::theme(legend.position = "bottom",
+                   legend.title = ggplot2::element_blank(),
+                   legend.text = ggplot2::element_text(face = "bold",
+                                                       size = 12),
+                   axis.title.y = ggplot2::element_text(face = "bold",
+                                                        size = 12),
+                   axis.title.x = ggplot2::element_blank(),
+                   axis.text.y = ggplot2::element_text(size = 12),
+                   axis.text.x = ggplot2::element_blank(),
+                   strip.text.x = ggplot2::element_text(face = "bold",
+                                                       size = 12),)
 
   ggplot2::ggsave(paste0("output/", name_file, ".jpg"),
-                  width = 7,
+                  width = 9,
                   height = 4)
   ggplot2::ggsave(paste0("output/", name_file, ".eps"),
-                  width = 7,
+                  width = 9,
                   height = 4,
                   dpi = 300)
   ggplot2::ggsave(paste0("output/", name_file, ".tiff"),
-                  width = 7,
+                  width = 9,
                   height = 4,
                   dpi = 300,
                   device='tiff')
@@ -735,7 +763,11 @@ supp_table_comp <- function(output_tib,
                                               "this study",
                                               "this study",
                                               "this study"
-                                )
+                                ),
+                                Comment = c(NA, NA, NA, NA, NA, NA,
+                                            "Estimates from this study were originally calculated for the reproduction period only. They were raised to annual estimates using a simple cross product.",
+                                            NA, NA, NA, NA
+                                            )
   )
 
 
