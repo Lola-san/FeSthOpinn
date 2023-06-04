@@ -420,7 +420,7 @@ fig_sp_Fe_with_diff <- function(output_tib,
                         ggplot2::aes(y = dplyr::case_when(level == "Population annual level (t/yr)" ~ `97.5_quant` + 20,
                                                           level == "Individual daily level (mg/day)" ~ `97.5_quant` + 50),
                                      x = Species_eng),
-                        size = 3) +
+                        size = 4) +
     ggplot2::facet_wrap(~ level, scales = "free") +
     ggplot2::ylab("Fe release") +
     ggplot2::theme_bw() +
