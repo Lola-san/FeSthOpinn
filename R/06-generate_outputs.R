@@ -661,6 +661,7 @@ supp_table_param <- function(output_tib,
                                         `97.5_quant` = quantile(value, probs = c(0.975)),
                                         max = max(value)) |>
                        dplyr::mutate(Parameter = "Individual daily amount of Fe ingested (mg)"),
+                     # model outputs
                      output_tib |>
                        dplyr::group_by(Species) |>
                        tidyr::unnest(excrete_Fe_ind) |>
@@ -670,7 +671,18 @@ supp_table_param <- function(output_tib,
                                         median = median(value),
                                         `97.5_quant` = quantile(value, probs = c(0.975)),
                                         max = max(value)) |>
-                       dplyr::mutate(Parameter = "Individual daily amount of Fe released (mg)")
+                       dplyr::mutate(Parameter = "Individual daily amount of Fe released (mg)"),
+                     output_tib |>
+                       dplyr::group_by(Species) |>
+                       tidyr::unnest(excrete_Fe) |>
+                       dplyr::rename(excrete_Fe = value) |>
+                       dplyr::summarize(min = min(excrete_Fe),
+                                        `2.5_quant` = quantile(excrete_Fe, probs = c(0.025)),
+                                        mean = mean(excrete_Fe),
+                                        median = median(excrete_Fe),
+                                        `97.5_quant` = quantile(excrete_Fe, probs = c(0.975)),
+                                        max = max(excrete_Fe)) |>
+                       dplyr::mutate(Parameter = "Population annual amount of Fe released (t/yr)")
     )
 
   if (object_type == "file") {

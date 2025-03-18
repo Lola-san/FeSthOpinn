@@ -125,6 +125,9 @@ create_sobol_index_tib_sensi <- function(output_tib,
 
   df_Si_Sti <- df_Si_Sti[-1, ]
 
+  openxlsx::write.xlsx(df_Si_Sti,
+                       file = "output/supp_mat_sensitivity.xlsx")
+
   df_Si_Sti
 }
 
